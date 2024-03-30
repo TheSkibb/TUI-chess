@@ -137,32 +137,34 @@ func (m model) View() string{
 
             piece := m.board[i][j]
 
-            if i == m.cursor.y && j == m.cursor.x &&
-                m.cursor.x != m.selected.x &&
-                m.cursor.y != m.selected.y {
-                s += highlightColor + "| " + piece +" |" + White
-            } else if i == m.selected.y && j == m.selected.x {
-                s += selectedColor + "| " + piece +" |" + White
-            } else {
-                s += "| " + piece +" |"
+            color := White
+
+            if i == m.cursor.y && j == m.cursor.x {
+                color = highlightColor
             }
+
+            if i == m.selected.y && j == m.selected.x {
+                color = selectedColor
+            }
+
+            s += color + "| " + piece +" |" + White
         }
 
         s += "\n"
 
         // draw borders
         for j := 0; j < rowsAndColums; j++ {
+            color := White
+
             if i == m.cursor.y && j == m.cursor.x || i == m.cursor.y - 1 && j == m.cursor.x {
-                if m.cursor.x == m.selected.x && m.cursor.y == m.selected.y{
-                    s += selectedColor + "|---|" + White
-                } else {
-                    s += highlightColor + "|---|" + White
-                }
-            }else if i == m.selected.y && j == m.selected.x || i == m.selected.y - 1 && j == m.selected.x {
-                s += selectedColor + "|---|" + White
-            } else {
-                s += "|---|"
+                color = highlightColor
             }
+
+            if i == m.selected.y && j == m.selected.x || i == m.selected.y - 1 && j == m.selected.x {
+                color = selectedColor
+            }
+
+            s += color + "|---|" + White
         }
 
         s += "\n"
