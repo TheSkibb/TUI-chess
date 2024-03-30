@@ -154,8 +154,12 @@ func (m model) View() string{
 
 func (m  *model) selectSquare(){
     logToFile("selected: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y))
-    m.selected.x = m.cursor.x
-    m.selected.y = m.cursor.y
+    if m.selected == m.cursor{
+        logToFile("deselecting")
+        m.selected = coordinate{-1, -1}
+    } else {
+        m.selected = coordinate{m.cursor.x, m.cursor.y}
+    }
 }
 
 func logToFile(msg string){
