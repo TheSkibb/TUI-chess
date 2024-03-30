@@ -11,6 +11,7 @@ import (
 type model struct {
     cursor coordinate
     selected coordinate
+    board [8][8]string
 }
 
 type coordinate struct {
@@ -22,6 +23,9 @@ type chessPosition struct {
 }
 
 const rowsAndColums = 8
+
+//colors 
+
 var Reset  = "\033[0m"
 var Red    = "\033[31m"
 var Green  = "\033[32m"
@@ -53,6 +57,16 @@ func initialModel() model {
     return model {
         cursor: coordinate{0, 0},
         selected: coordinate{-1, -1},
+        board: [8][8]string{
+           {"♖", "♘", "♗", "♕", "♔", "♘", "♗", "♖"},
+           {"♗", "♗", "♗", "♗", "♗", "♗", "♗", "♗"},
+           {" ", " ", " ", " ", " ", " ", " ", " "},
+           {" ", " ", " ", " ", " ", " ", " ", " "},
+           {" ", " ", " ", " ", " ", " ", " ", " "},
+           {" ", " ", " ", " ", " ", " ", " ", " "},
+           {"♟︎", "♟︎", "♟︎", "♟︎", "♟︎", "♟︎", "♟︎", "♟︎"},
+           {"♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"},
+        },
     }
 }
 
@@ -104,6 +118,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string{
 
+    // every cell is 6x3
+    // |---||---|
+    // |   ||   |
+    // |---||---|
+
     s := ""
 
 
@@ -116,14 +135,16 @@ func (m model) View() string{
         // draw cells
         for j := 0; j < rowsAndColums; j++ {
 
+            piece := m.board[i][j]
+
             if i == m.cursor.y && j == m.cursor.x &&
                 m.cursor.x != m.selected.x &&
                 m.cursor.y != m.selected.y {
-                s += highlightColor + "|   |" + White
+                s += highlightColor + "| " + piece +" |" + White
             } else if i == m.selected.y && j == m.selected.x {
-                s += selectedColor + "|   |" + White
+                s += selectedColor + "| " + piece +" |" + White
             } else {
-                s += "|   |"
+                s += "| " + piece +" |"
             }
         }
 
