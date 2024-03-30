@@ -9,8 +9,13 @@ import (
 )
 
 type model struct {
-    cursorPosX int
-    cursorPosY int
+    cursor coordinate
+    selected coordinate
+}
+
+type coordinate struct {
+    x int
+    y int
 }
 
 type chessPosition struct {
@@ -28,6 +33,7 @@ var Gray   = "\033[37m"
 var White  = "\033[97m"
 
 var highlightColor = Blue
+var selectedColor = Red
 
 var player1Name = "player 1"
 var player2Name = "player 2"
@@ -45,8 +51,8 @@ func main(){
 
 func initialModel() model {
     return model {
-        cursorPosX: 0,
-        cursorPosY: 0,
+        cursor: coordinate{0, 0},
+        selected: coordinate{-1, -1},
     }
 }
 
@@ -71,24 +77,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             return m, tea.Quit
 
         case "j", "down":
-            if m.cursorPosY < rowsAndColums - 1 {
-                m.cursorPosY ++
+            if m.cursor.y < rowsAndColums - 1 {
+                m.cursor.y ++
             }
 
         case "k", "up":
-            if m.cursorPosY != 0 {
-                m.cursorPosY --
+            if m.cursor.y != 0 {
+                m.cursor.y --
             }
 
         case "l", "right":
-            if m.cursorPosX < rowsAndColums - 1 {
-                m.cursorPosX ++
+            if m.cursor.x < rowsAndColums - 1 {
+                m.cursor.x ++
             }
         case "h", "left":
-            if m.cursorPosX != 0{
-                m.cursorPosX --
+            if m.cursor.x != 0{
+                m.cursor.x --
             }
-
+        case "enter", " ":
+            m.selectSquare()
         }
 
     }
@@ -108,8 +115,13 @@ func (m model) View() string{
 
         // draw cells
         for j := 0; j < rowsAndColums; j++ {
-            if i == m.cursorPosY && j == m.cursorPosX {
-                s += highlightColor + "| X |" + White
+
+            if i == m.cursor.y && j == m.cursor.x &&
+                m.cursor.x != m.selected.x &&
+                m.cursor.y != m.selected.y {
+                s += highlightColor + "|   |" + White
+            } else if i == m.selected.y && j == m.selected.x {
+                s += selectedColor + "|   |" + White
             } else {
                 s += "|   |"
             }
@@ -119,8 +131,10 @@ func (m model) View() string{
 
         // draw borders
         for j := 0; j < rowsAndColums; j++ {
-            if i == m.cursorPosY && j == m.cursorPosX || i == m.cursorPosY - 1 && j == m.cursorPosX {
+            if i == m.cursor.y && j == m.cursor.x || i == m.cursor.y - 1 && j == m.cursor.x {
                 s += highlightColor + "|---|" + White
+            }else if i == m.selected.y && j == m.selected.x || i == m.selected.y - 1 && j == m.selected.x {
+                s += selectedColor + "|---|" + White
             } else {
                 s += "|---|"
             }
@@ -132,9 +146,16 @@ func (m model) View() string{
 
     s += player2Name + ": []\n"
 
-    logToFile(strconv.Itoa(m.cursorPosX) + " " + strconv.Itoa(m.cursorPosY))
+    logToFile("cursor: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y) +
+       "selected: " + strconv.Itoa(m.selected.x) + strconv.Itoa(m.selected.y))
 
     return s
+}
+
+func (m  *model) selectSquare(){
+    logToFile("selected: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y))
+    m.selected.x = m.cursor.x
+    m.selected.y = m.cursor.y
 }
 
 func logToFile(msg string){
