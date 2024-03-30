@@ -87,7 +87,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         switch msg.String() {
 
         // These keys should exit the program.
-        case "ctrl+c", "q":
+        case "ctrl+c", "ctrl+d", "q":
             return m, tea.Quit
 
         case "j", "down":
