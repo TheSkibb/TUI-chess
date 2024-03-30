@@ -132,7 +132,11 @@ func (m model) View() string{
         // draw borders
         for j := 0; j < rowsAndColums; j++ {
             if i == m.cursor.y && j == m.cursor.x || i == m.cursor.y - 1 && j == m.cursor.x {
-                s += highlightColor + "|---|" + White
+                if m.cursor.x == m.selected.x && m.cursor.y == m.selected.y{
+                    s += selectedColor + "|---|" + White
+                } else {
+                    s += highlightColor + "|---|" + White
+                }
             }else if i == m.selected.y && j == m.selected.x || i == m.selected.y - 1 && j == m.selected.x {
                 s += selectedColor + "|---|" + White
             } else {
@@ -155,7 +159,6 @@ func (m model) View() string{
 func (m  *model) selectSquare(){
     logToFile("selected: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y))
     if m.selected == m.cursor{
-        logToFile("deselecting")
         m.selected = coordinate{-1, -1}
     } else {
         m.selected = coordinate{m.cursor.x, m.cursor.y}
