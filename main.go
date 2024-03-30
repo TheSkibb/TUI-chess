@@ -156,12 +156,13 @@ func (m model) View() string{
         for j := 0; j < rowsAndColums; j++ {
             color := White
 
-            if i == m.cursor.y && j == m.cursor.x || i == m.cursor.y - 1 && j == m.cursor.x {
-                color = highlightColor
-            }
 
             if i == m.selected.y && j == m.selected.x || i == m.selected.y - 1 && j == m.selected.x {
                 color = selectedColor
+            }
+
+            if i == m.cursor.y && j == m.cursor.x || i == m.cursor.y - 1 && j == m.cursor.x {
+                color = highlightColor
             }
 
             s += color + "|---|" + White
