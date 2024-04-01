@@ -12,6 +12,7 @@ type model struct {
     cursor coordinate
     selected coordinate
     board [8][8]string
+    possibleMoves []coordinate
 }
 
 type coordinate struct {
@@ -38,6 +39,7 @@ var White  = "\033[97m"
 
 var highlightColor = Blue
 var selectedColor = Red
+var possibleMoveColor = Yellow
 
 var player1Name = "player 1"
 var player2Name = "player 2"
@@ -59,7 +61,7 @@ func initialModel() model {
         selected: coordinate{-1, -1},
         board: [8][8]string{
            {"♖", "♘", "♗", "♕", "♔", "♘", "♗", "♖"},
-           {"♗", "♗", "♗", "♗", "♗", "♗", "♗", "♗"},
+           {"♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"},
            {" ", " ", " ", " ", " ", " ", " ", " "},
            {" ", " ", " ", " ", " ", " ", " ", " "},
            {" ", " ", " ", " ", " ", " ", " ", " "},
@@ -147,6 +149,13 @@ func (m model) View() string{
                 color = selectedColor
             }
 
+            for _, possibleMove := range m.possibleMoves{
+                if i == possibleMove.y && j == possibleMove.x {
+                    color = possibleMoveColor
+                    break
+                }
+            }
+
             s += color + "| " + piece +" |" + White
         }
 
@@ -156,7 +165,12 @@ func (m model) View() string{
         for j := 0; j < rowsAndColums; j++ {
             color := White
 
-
+            for _, possibleMove := range m.possibleMoves{
+                if i == possibleMove.y && j == possibleMove.x || i == possibleMove.y - 1 && j == possibleMove.x {
+                    color = possibleMoveColor
+                    break
+                }
+            }
             if i == m.selected.y && j == m.selected.x || i == m.selected.y - 1 && j == m.selected.x {
                 color = selectedColor
             }
@@ -180,12 +194,53 @@ func (m model) View() string{
     return s
 }
 
+func (m *model) calculateMoves(){
+    //logToFile(strconv.Itoa(m.selected.x) + strconv.Itoa(m.selected.y))
+    piece := m.board[m.selected.y][m.selected.x]
+    logToFile(piece)
+
+    if piece == " " {
+        m.possibleMoves = []coordinate{}
+    }else{
+        switch piece{
+
+        case "♙":
+            m.possibleMoves = []coordinate{
+                {m.selected.x, m.selected.y + 1},
+                {m.selected.x, m.selected.y + 2},
+            }
+
+        default:
+            m.possibleMoves = []coordinate{}
+        }
+
+    }
+
+    logToFile("length of possible moves: " + strconv.Itoa(len(m.possibleMoves)))
+}
+
+//creates an array of coordinates {-1, -1}, which will not be 
+func createEmptyCoordinateArray(length int) []coordinate{
+    emptyArray := make([]coordinate, length)
+    
+    for i := 0; i < length; i++ {
+        emptyArray[i] = coordinate{-1, -1}
+    }
+
+    logToFile(strconv.Itoa(emptyArray[10].x))
+
+    return emptyArray
+}
+
+
 func (m  *model) selectSquare(){
     logToFile("selected: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y))
     if m.selected == m.cursor{
         m.selected = coordinate{-1, -1}
+        m.possibleMoves = []coordinate{}
     } else {
         m.selected = coordinate{m.cursor.x, m.cursor.y}
+        m.calculateMoves()
     }
 }
 
