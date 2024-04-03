@@ -20,8 +20,6 @@ type coordinate struct {
     y int
 }
 
-type chessPosition struct {
-}
 
 const rowsAndColums = 8
 
