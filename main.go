@@ -235,16 +235,28 @@ func createEmptyCoordinateArray(length int) []coordinate{
 
 func (m  *model) selectSquare(){
     logToFile("selected: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y))
+    
+    //check player is deselecting
     if m.selected == m.cursor{
         m.selected = coordinate{-1, -1}
         m.possibleMoves = []coordinate{}
     } else {
+        /* selecting */
+
+        //check if selection is a possible move
         for _, pos := range m.possibleMoves{
             if pos == m.cursor{
                 m.movePiece(pos, m.cursor)
                 return
             }
         }
+
+        //check if there is a piece under the cursor
+        if m.board[m.cursor.y][m.cursor.y] == " "{
+            logToFile("no piece")
+            return
+        }
+
         m.selected = coordinate{m.cursor.x, m.cursor.y}
 
         m.calculateMoves()
