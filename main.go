@@ -127,7 +127,7 @@ func (m model) View() string{
     s := ""
 
 
-    s += player1Name + ": []\n"
+    s += player2Name + ": []\n"
 
     s += "|---||---||---||---||---||---||---||---|\n"
 
@@ -185,7 +185,7 @@ func (m model) View() string{
     }
 
 
-    s += player2Name + ": []\n"
+    s += player1Name + ": []\n"
 
     logToFile("cursor: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y) +
        "selected: " + strconv.Itoa(m.selected.x) + strconv.Itoa(m.selected.y))
@@ -207,6 +207,10 @@ func (m *model) calculateMoves(){
             m.possibleMoves = []coordinate{
                 {m.selected.x, m.selected.y + 1},
                 //{m.selected.x, m.selected.y + 2},
+            }
+        case "♟︎":
+            m.possibleMoves = []coordinate{
+                {m.selected.x, m.selected.y - 1},
             }
 
         default:
@@ -248,12 +252,6 @@ func (m  *model) selectSquare(){
                 m.movePiece(pos, m.cursor)
                 return
             }
-        }
-
-        //check if there is a piece under the cursor
-        if m.board[m.cursor.y][m.cursor.y] == " "{
-            logToFile("no piece")
-            return
         }
 
         m.selected = coordinate{m.cursor.x, m.cursor.y}
