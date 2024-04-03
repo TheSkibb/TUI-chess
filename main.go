@@ -11,7 +11,7 @@ import (
 type model struct {
     cursor coordinate
     selected coordinate
-    board [8][8]string
+    board [8][8]piece
     possibleMoves []coordinate
 }
 
@@ -20,6 +20,85 @@ type coordinate struct {
     y int
 }
 
+type piece struct {
+    unicode string
+    pieceColor pieceColor
+}
+
+/* pieces */
+
+var pawnBlack = piece{
+    unicode : "♙",
+    pieceColor: black,
+}
+
+var rookBlack = piece{
+    unicode: "♖",
+    pieceColor: black,
+}
+
+var knightBlack = piece{
+    unicode: "♘",
+    pieceColor: black,
+}
+
+var bishopBlack = piece{
+    unicode: "♗",
+    pieceColor: black,
+}
+
+var queenBlack = piece{
+    unicode: "♕",
+    pieceColor: black,
+}
+
+var kingBlack = piece{
+    unicode: "♔",
+    pieceColor: black,
+}
+
+var pawnWhite = piece{
+    unicode : "♟︎",
+    pieceColor: black,
+}
+
+var rookWhite = piece{
+    unicode: "♜",
+    pieceColor: black,
+}
+
+var knightWhite = piece{
+    unicode: "♞",
+    pieceColor: black,
+}
+
+var bishopWhite = piece{
+    unicode: "♝",
+    pieceColor: black,
+}
+
+var queenWhite = piece{
+    unicode: "♛",
+    pieceColor: black,
+}
+
+var kingWhite = piece{
+    unicode: "♚",
+    pieceColor: black,
+}
+
+var empty = piece{
+    unicode: " ",
+    pieceColor: "none",
+}
+
+
+type pieceColor string
+
+const (
+    black pieceColor = "black"
+    white pieceColor = "white"
+)
 
 const rowsAndColums = 8
 const debugging = 1
@@ -58,15 +137,15 @@ func initialModel() model {
     return model {
         cursor: coordinate{0, 0},
         selected: coordinate{-1, -1},
-        board: [8][8]string{
-           {"♖", "♘", "♗", "♕", "♔", "♘", "♗", "♖"},
-           {"♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"},
-           {" ", " ", " ", " ", " ", " ", " ", " "},
-           {" ", " ", " ", " ", " ", " ", " ", " "},
-           {" ", " ", " ", " ", " ", " ", " ", " "},
-           {" ", " ", " ", " ", " ", " ", " ", " "},
-           {"♟︎", "♟︎", "♟︎", "♟︎", "♟︎", "♟︎", "♟︎", "♟︎"},
-           {"♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"},
+        board: [8][8]piece{
+           {rookBlack, knightBlack, bishopBlack, queenBlack, kingBlack, knightBlack, bishopBlack, rookBlack},
+           {pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack},
+           {empty, empty, empty, empty, empty, empty, empty, empty},
+           {empty, empty, empty, empty, empty, empty, empty, empty},
+           {empty, empty, empty, empty, empty, empty, empty, empty},
+           {empty, empty, empty, empty, empty, empty, empty, empty},
+           {pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite},
+           {rookWhite, knightWhite, bishopWhite, queenWhite, kingWhite, bishopWhite, knightWhite, rookWhite},
         },
     }
 }
@@ -155,7 +234,7 @@ func (m model) View() string{
                 }
             }
 
-            s += color + "| " + piece +" |" + White
+            s += color + "| " + piece.unicode +" |" + White
         }
 
         s += "\n"
@@ -196,17 +275,16 @@ func (m model) View() string{
 func (m *model) calculateMoves(){
     //logToFile(strconv.Itoa(m.selected.x) + strconv.Itoa(m.selected.y))
     piece := m.board[m.selected.y][m.selected.x]
-    logToFile("calculating" + piece)
+    logToFile("calculating" + piece.unicode)
 
-    if piece == " " {
+    if piece.unicode == " " {
         m.possibleMoves = []coordinate{}
     }else{
-        switch piece{
+        switch piece.unicode{
 
         case "♙":
             m.possibleMoves = []coordinate{
                 {m.selected.x, m.selected.y + 1},
-                //{m.selected.x, m.selected.y + 2},
             }
         case "♟︎":
             m.possibleMoves = []coordinate{
@@ -264,11 +342,11 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
 
     piece := m.board[m.selected.y][m.selected.x]
 
-    logToFile("moving piece" + piece)
+    logToFile("moving piece" + piece.unicode)
 
     //move piece
     m.board[pos.y][pos.x] = piece
-    m.board[m.selected.y][m.selected.x] = " "
+    m.board[m.selected.y][m.selected.x] = empty
 
     //reset selected and possibleMoves
     m.selected = coordinate{-1, -1}
