@@ -197,7 +197,7 @@ func (m model) View() string{
 func (m *model) calculateMoves(){
     //logToFile(strconv.Itoa(m.selected.x) + strconv.Itoa(m.selected.y))
     piece := m.board[m.selected.y][m.selected.x]
-    logToFile(piece)
+    logToFile("calculating" + piece)
 
     if piece == " " {
         m.possibleMoves = []coordinate{}
@@ -207,7 +207,7 @@ func (m *model) calculateMoves(){
         case "♙":
             m.possibleMoves = []coordinate{
                 {m.selected.x, m.selected.y + 1},
-                {m.selected.x, m.selected.y + 2},
+                //{m.selected.x, m.selected.y + 2},
             }
 
         default:
@@ -239,9 +239,31 @@ func (m  *model) selectSquare(){
         m.selected = coordinate{-1, -1}
         m.possibleMoves = []coordinate{}
     } else {
+        for _, pos := range m.possibleMoves{
+            if pos == m.cursor{
+                m.movePiece(pos, m.cursor)
+                return
+            }
+        }
         m.selected = coordinate{m.cursor.x, m.cursor.y}
+
         m.calculateMoves()
     }
+}
+
+func (m *model) movePiece(pos coordinate, piecePos coordinate){
+
+    piece := m.board[m.selected.y][m.selected.x]
+
+    logToFile("moving piece" + piece)
+
+    //move piece
+    m.board[pos.y][pos.x] = piece
+    m.board[m.selected.y][m.selected.x] = " "
+
+    //reset selected and possibleMoves
+    m.selected = coordinate{-1, -1}
+    m.possibleMoves = []coordinate{}
 }
 
 func logToFile(msg string){
