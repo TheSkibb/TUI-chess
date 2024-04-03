@@ -22,6 +22,7 @@ type coordinate struct {
 
 
 const rowsAndColums = 8
+const debugging = 1
 
 //colors 
 
@@ -277,6 +278,10 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
 }
 
 func logToFile(msg string){
+    if debugging == 0 {
+        return
+    }
+
     f, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		fmt.Println("fatal:", err)
