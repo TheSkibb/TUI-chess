@@ -292,7 +292,22 @@ func (m *model) calculateMoves(){
             }
 
             m.possibleMoves = []coordinate{
-                {m.selected.x, m.selected.y + 1 * direction},
+            }
+
+            //check forward
+            if m.board[m.selected.y + 1 * direction][m.selected.x] == empty {
+                logToFile("next square is empty")
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + 1 * direction})
+            }
+
+            //check for diagonals
+            if m.selected.x != 0 && m.board[m.selected.y + 1 * direction][m.selected.x - 1] != empty{
+                logToFile("there is diagonal")
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x - 1, m.selected.y + 1 * direction})
+            }
+            if m.selected.x != 7 && m.board[m.selected.y + 1 * direction][m.selected.x + 1] != empty{
+                logToFile("there is diagonal")
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x + 1, m.selected.y + 1 * direction})
             }
 
         default:
