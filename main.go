@@ -25,74 +25,6 @@ type piece struct {
     pieceColor pieceColor
 }
 
-/* pieces */
-
-var pawnBlack = piece{
-    unicode : "♙",
-    pieceColor: black,
-}
-
-var rookBlack = piece{
-    unicode: "♖",
-    pieceColor: black,
-}
-
-var knightBlack = piece{
-    unicode: "♘",
-    pieceColor: black,
-}
-
-var bishopBlack = piece{
-    unicode: "♗",
-    pieceColor: black,
-}
-
-var queenBlack = piece{
-    unicode: "♕",
-    pieceColor: black,
-}
-
-var kingBlack = piece{
-    unicode: "♔",
-    pieceColor: black,
-}
-
-var pawnWhite = piece{
-    unicode : "♟︎",
-    pieceColor: white,
-}
-
-var rookWhite = piece{
-    unicode: "♜",
-    pieceColor: white,
-}
-
-var knightWhite = piece{
-    unicode: "♞",
-    pieceColor: white,
-}
-
-var bishopWhite = piece{
-    unicode: "♝",
-    pieceColor: white,
-}
-
-var queenWhite = piece{
-    unicode: "♛",
-    pieceColor: white,
-}
-
-var kingWhite = piece{
-    unicode: "♚",
-    pieceColor: white,
-}
-
-var empty = piece{
-    unicode: " ",
-    pieceColor: "none",
-}
-
-
 type pieceColor string
 
 const (
@@ -124,6 +56,7 @@ var player2Name = "player 2"
 
 
 func main(){
+
     logToFile("**** new start ****")
     p := tea.NewProgram(initialModel())
     if _, err := p.Run(); err != nil {
@@ -309,6 +242,12 @@ func (m *model) calculateMoves(){
                 logToFile("there is diagonal")
                 m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x + 1, m.selected.y + 1 * direction})
             }
+
+        case "♖", "♜":
+            m.possibleMoves = []coordinate{
+            }
+
+            //check in every direction
 
         default:
             m.possibleMoves = []coordinate{}
