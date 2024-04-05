@@ -59,32 +59,32 @@ var kingBlack = piece{
 
 var pawnWhite = piece{
     unicode : "♟︎",
-    pieceColor: black,
+    pieceColor: white,
 }
 
 var rookWhite = piece{
     unicode: "♜",
-    pieceColor: black,
+    pieceColor: white,
 }
 
 var knightWhite = piece{
     unicode: "♞",
-    pieceColor: black,
+    pieceColor: white,
 }
 
 var bishopWhite = piece{
     unicode: "♝",
-    pieceColor: black,
+    pieceColor: white,
 }
 
 var queenWhite = piece{
     unicode: "♛",
-    pieceColor: black,
+    pieceColor: white,
 }
 
 var kingWhite = piece{
     unicode: "♚",
-    pieceColor: black,
+    pieceColor: white,
 }
 
 var empty = piece{
@@ -277,18 +277,22 @@ func (m *model) calculateMoves(){
     piece := m.board[m.selected.y][m.selected.x]
     logToFile("calculating" + piece.unicode)
 
+    //direction is either 1 if piece is black, or -1 if it is white
+    direction := 1
+
     if piece.unicode == " " {
         m.possibleMoves = []coordinate{}
     }else{
         switch piece.unicode{
 
-        case "♙":
-            m.possibleMoves = []coordinate{
-                {m.selected.x, m.selected.y + 1},
+        case "♙", "♟︎":
+            if piece.pieceColor == white {
+                direction = -1
+                logToFile("is white piece")
             }
-        case "♟︎":
+
             m.possibleMoves = []coordinate{
-                {m.selected.x, m.selected.y - 1},
+                {m.selected.x, m.selected.y + 1 * direction},
             }
 
         default:
