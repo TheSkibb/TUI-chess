@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+    "errors"
 	"os"
 	"strconv"
 
@@ -58,7 +59,25 @@ var player2Name = "player 2"
 func main(){
 
     logToFile("**** new start ****")
-    p := tea.NewProgram(initialModel())
+
+    var model model
+    var err error
+
+    args := os.Args[1:]
+    if len(args) == 0 {
+        err, model = initialModel("default")
+    } else {
+        err, model = initialModel(args[0])
+    }
+
+
+    if err != nil {
+        fmt.Printf("%v", err)
+        os.Exit(1)
+    }
+
+    p := tea.NewProgram(model)
+
     if _, err := p.Run(); err != nil {
         fmt.Printf("Alas, there's been an error: %v", err)
         os.Exit(1)
@@ -66,20 +85,23 @@ func main(){
 
 }
 
-func initialModel() model {
-    return model {
-        cursor: coordinate{0, 0},
-        selected: coordinate{-1, -1},
-        board: [8][8]piece{
-           {rookBlack, knightBlack, bishopBlack, queenBlack, kingBlack, knightBlack, bishopBlack, rookBlack},
-           {pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack, pawnBlack},
-           {empty, empty, empty, empty, empty, empty, empty, empty},
-           {empty, empty, empty, empty, empty, empty, empty, empty},
-           {empty, empty, empty, empty, empty, empty, empty, empty},
-           {empty, empty, empty, empty, empty, empty, empty, empty},
-           {pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite, pawnWhite},
-           {rookWhite, knightWhite, bishopWhite, queenWhite, kingWhite, bishopWhite, knightWhite, rookWhite},
-        },
+func initialModel(mode string) (error, model) {
+    switch mode{
+    case "default":
+        return nil, model {
+            cursor: coordinate{0, 0},
+            selected: coordinate{-1, -1},
+            board: boardDefault,
+        }
+    case "testRook":
+        return nil, model {
+            cursor: coordinate{0, 0},
+            selected: coordinate{-1, -1},
+            board: boardTestRook,
+        }
+
+    default:
+        return errors.New("unrecognized board"), model{}
     }
 }
 
