@@ -415,6 +415,7 @@ func (m *model) calculateMoves(){
                 }
             }
 
+        /* knight movement */
         case "♞", "♘":
             m.possibleMoves = []coordinate{}
 
@@ -430,7 +431,7 @@ func (m *model) calculateMoves(){
             }
 
             for _, move := range checkMoves {
-                if move.x > rowsAndColums || move.x < 0 || move.y > rowsAndColums || move.y < 0 {
+                if move.x >= rowsAndColums || move.x < 0 || move.y >= rowsAndColums || move.y < 0 {
                     continue
                 }
                 if m.checkIfEmpty(move){
