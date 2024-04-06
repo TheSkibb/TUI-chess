@@ -273,8 +273,13 @@ func (m *model) calculateMoves(){
 
             // down
             for i := 1; m.selected.y + i < rowsAndColums; i ++ {
-                if m.checkIfEmpty(coordinate{m.selected.x, m.cursor.y + i}){
-                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + i})
+                moveCoor := coordinate{m.selected.x, m.cursor.y + i}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
                 } else {
                     break
                 }
@@ -282,8 +287,13 @@ func (m *model) calculateMoves(){
 
             // up
             for i := 1; m.selected.y - i >= 0; i ++ {
-                if m.checkIfEmpty(coordinate{m.selected.x, m.cursor.y - i}){
-                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y - i})
+                moveCoor := coordinate{m.selected.x, m.cursor.y - i}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
                 } else {
                     break
                 }
@@ -291,17 +301,28 @@ func (m *model) calculateMoves(){
 
             //left
             for i := 1; m.selected.x + i < rowsAndColums; i++ {
-                if m.checkIfEmpty(coordinate{m.selected.x + i, m.cursor.y}){
-                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x + i, m.selected.y})
+                moveCoor := coordinate{m.selected.x + i, m.cursor.y}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
                 } else {
                     break
                 }
             }
 
-            // right
+            // left
             for i := 1; m.selected.x - i >= 0; i++ {
-                if m.checkIfEmpty(coordinate{m.selected.x - i, m.cursor.y}){
-                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x - i, m.selected.y})
+                
+                moveCoor := coordinate{m.selected.x - i, m.cursor.y}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
                 } else {
                     break
                 }
@@ -335,6 +356,13 @@ func (m model) checkIfEmpty(c coordinate) bool {
         return true
     } 
     return false
+}
+
+func (m model) checkIfSameColor(c1 coordinate, c2 coordinate) bool {
+    logToFile("***** colors***")
+    logToFile(string(m.board[c1.y][c1.x].pieceColor))
+    logToFile(string(m.board[c2.y][c2.x].pieceColor))
+    return m.board[c1.y][c1.x].pieceColor == m.board[c2.y][c2.x].pieceColor
 }
 
 func (m  *model) selectSquare(){
