@@ -262,6 +262,13 @@ func (m *model) calculateMoves(){
                 m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + 1 * direction})
             }
 
+            //check if in initial position
+            if (piece.pieceColor == "black" && m.selected.y == 1 ||
+            piece.pieceColor == "white" && m.selected.y == 6 ) && 
+            m.board[m.selected.y + 2 * direction][m.selected.x] == empty {
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + 2 * direction})
+            }
+
             //check for diagonals
             if m.selected.x != 0 && 
             m.board[m.selected.y + 1 * direction][m.selected.x - 1] != empty && 
