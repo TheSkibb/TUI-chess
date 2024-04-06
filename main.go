@@ -168,10 +168,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             if m.cursor.x < rowsAndColums - 1 {
                 m.cursor.x ++
             }
+
         case "h", "left":
             if m.cursor.x != 0{
                 m.cursor.x --
             }
+
         case "enter", " ":
             m.selectSquare()
         }
@@ -181,11 +183,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string{
-
-    // every cell is 6x3
-    // |---||---|
-    // |   ||   |
-    // |---||---|
 
     s := ""
 
@@ -250,16 +247,12 @@ func (m model) View() string{
 
     s += player1Name + ": []\n"
 
-    logToFile("cursor: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y) +
-       "selected: " + strconv.Itoa(m.selected.x) + strconv.Itoa(m.selected.y))
-
     return s
 }
 
 func (m *model) calculateMoves(){
-    //logToFile(strconv.Itoa(m.selected.x) + strconv.Itoa(m.selected.y))
+
     piece := m.board[m.selected.y][m.selected.x]
-    logToFile("calculating" + piece.unicode)
 
     //direction is either 1 if piece is black, or -1 if it is white
     direction := 1
@@ -273,7 +266,6 @@ func (m *model) calculateMoves(){
         case "♙", "♟︎":
             if piece.pieceColor == white {
                 direction = -1
-                logToFile("is white piece")
             }
 
             m.possibleMoves = []coordinate{
@@ -281,7 +273,6 @@ func (m *model) calculateMoves(){
 
             //check forward
             if m.board[m.selected.y + 1 * direction][m.selected.x] == empty {
-                logToFile("next square is empty")
                 m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + 1 * direction})
             }
 
@@ -449,8 +440,6 @@ func (m *model) calculateMoves(){
         }
 
     }
-
-    logToFile("length of possible moves: " + strconv.Itoa(len(m.possibleMoves)))
 }
 
 //creates an array of coordinates {-1, -1}, which will not be 
@@ -460,8 +449,6 @@ func createEmptyCoordinateArray(length int) []coordinate{
     for i := 0; i < length; i++ {
         emptyArray[i] = coordinate{-1, -1}
     }
-
-    logToFile(strconv.Itoa(emptyArray[10].x))
 
     return emptyArray
 }
@@ -474,14 +461,10 @@ func (m model) checkIfEmpty(c coordinate) bool {
 }
 
 func (m model) checkIfSameColor(c1 coordinate, c2 coordinate) bool {
-    logToFile("***** colors***")
-    logToFile(string(m.board[c1.y][c1.x].pieceColor))
-    logToFile(string(m.board[c2.y][c2.x].pieceColor))
     return m.board[c1.y][c1.x].pieceColor == m.board[c2.y][c2.x].pieceColor
 }
 
 func (m  *model) selectSquare(){
-    logToFile("selected: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y))
     
     //check player is deselecting
     if m.selected == m.cursor{
@@ -507,8 +490,6 @@ func (m  *model) selectSquare(){
 func (m *model) movePiece(pos coordinate, piecePos coordinate){
 
     piece := m.board[m.selected.y][m.selected.x]
-
-    logToFile("moving piece" + piece.unicode)
 
     //move piece
     m.board[pos.y][pos.x] = piece
