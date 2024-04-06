@@ -269,7 +269,26 @@ func (m *model) calculateMoves(){
             m.possibleMoves = []coordinate{
             }
 
-            //check in every direction
+            // down
+            for i := 1; m.selected.y + i < rowsAndColums; i ++ {
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + i})
+            }
+
+            // up
+            for i := 1; m.selected.y - i >= 0; i ++ {
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y - i})
+            }
+
+            //left
+            for i := 1; m.selected.x + i < rowsAndColums; i++ {
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x + i, m.selected.y})
+            }
+
+            // right
+            for i := 1; m.selected.x - i >= 0; i++ {
+                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x - i, m.selected.y})
+            }
+
 
         default:
             m.possibleMoves = []coordinate{}
