@@ -115,6 +115,13 @@ func initialModel(mode string) (error, model) {
                 board: boardTestBishop,
             }
 
+        case "testKnight":
+        return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardTestKnight,
+            }
+
         case "testEmpty":
             return nil, model {
                 cursor: coordinate{0, 0},
@@ -408,7 +415,33 @@ func (m *model) calculateMoves(){
                 }
             }
 
+        case "♞", "♘":
+            m.possibleMoves = []coordinate{}
 
+            checkMoves := []coordinate{
+                {m.selected.x + 1, m.cursor.y + 2},
+                {m.selected.x + 1, m.cursor.y - 2},
+                {m.selected.x - 1, m.cursor.y + 2},
+                {m.selected.x - 1, m.cursor.y - 2},
+                {m.selected.x + 2, m.cursor.y + 1},
+                {m.selected.x + 2, m.cursor.y - 1},
+                {m.selected.x - 2, m.cursor.y + 1},
+                {m.selected.x - 2, m.cursor.y - 1},
+            }
+
+            for _, move := range checkMoves {
+                if move.x > rowsAndColums || move.x < 0 || move.y > rowsAndColums || move.y < 0 {
+                    continue
+                }
+                if m.checkIfEmpty(move){
+                    m.possibleMoves = append(m.possibleMoves, move)
+                } else if !m.checkIfSameColor(move, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, move)
+                    continue
+                } else {
+                    continue
+                }
+            }
 
         default:
             m.possibleMoves = []coordinate{}
