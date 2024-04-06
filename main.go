@@ -99,6 +99,12 @@ func initialModel(mode string) (error, model) {
             selected: coordinate{-1, -1},
             board: boardTestRook,
         }
+    case "testPawn":
+        return nil, model {
+            cursor: coordinate{0, 0},
+            selected: coordinate{-1, -1},
+            board: boardTestPawn,
+        }
 
     default:
         return errors.New("unrecognized board"), model{}
