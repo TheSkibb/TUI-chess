@@ -32,3 +32,16 @@ var boardTestRook = [8][8]piece{
    {empty, pawnWhite, empty, empty, rookBlack, empty, empty, empty},
    {empty, empty, empty, empty, empty, empty, empty, empty},
 }
+
+var boardTestEmpty = [8][8]piece{
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+}
+
+

@@ -87,24 +87,33 @@ func main(){
 
 func initialModel(mode string) (error, model) {
     switch mode{
-    case "default":
-        return nil, model {
-            cursor: coordinate{0, 0},
-            selected: coordinate{-1, -1},
-            board: boardDefault,
-        }
-    case "testRook":
-        return nil, model {
-            cursor: coordinate{0, 0},
-            selected: coordinate{-1, -1},
-            board: boardTestRook,
-        }
-    case "testPawn":
-        return nil, model {
-            cursor: coordinate{0, 0},
-            selected: coordinate{-1, -1},
-            board: boardTestPawn,
-        }
+        case "default":
+            return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardDefault,
+            }
+
+        case "testRook":
+            return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardTestRook,
+            }
+
+        case "testPawn":
+            return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardTestPawn,
+            }
+
+        case "testEmpty":
+            return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardTestEmpty,
+            }
 
     default:
         return errors.New("unrecognized board"), model{}
