@@ -33,6 +33,17 @@ var boardTestRook = [8][8]piece{
    {empty, empty, empty, empty, empty, empty, empty, empty},
 }
 
+var boardTestBishop = [8][8]piece{
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, bishopWhite, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, pawnWhite, empty, bishopBlack, empty, empty, empty, empty},
+   {empty, pawnWhite, empty, empty, empty, empty, empty, empty},
+   {empty, pawnWhite, empty, empty, empty, empty, empty, empty},
+   {empty, pawnWhite, empty, empty, empty, empty, empty, empty},
+   {empty, pawnWhite, empty, empty, empty, empty, empty, empty},
+}
+
 var boardTestEmpty = [8][8]piece{
    {empty, empty, empty, empty, empty, empty, empty, empty},
    {empty, empty, empty, empty, empty, empty, empty, empty},

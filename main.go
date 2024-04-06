@@ -108,6 +108,13 @@ func initialModel(mode string) (error, model) {
                 board: boardTestPawn,
             }
 
+        case "testBishop":
+        return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardTestBishop,
+            }
+
         case "testEmpty":
             return nil, model {
                 cursor: coordinate{0, 0},
@@ -351,6 +358,56 @@ func (m *model) calculateMoves(){
                     break
                 }
             }
+
+        /* bishop movement */
+        case "♗", "♝":
+            m.possibleMoves = []coordinate{}
+            
+            // right down
+            for i := 1; m.selected.y + i < rowsAndColums && m.selected.x + i < rowsAndColums; i++ {
+                moveCoor := coordinate{m.selected.x + i, m.selected.y + i}
+                m.possibleMoves = append(m.possibleMoves, moveCoor)
+            }
+
+            // right up
+            for i := 1; m.selected.y - i >= 0 && m.selected.x + i < rowsAndColums; i++ {
+                moveCoor := coordinate{m.selected.x + i, m.selected.y - i}
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+            // left down
+            for i := 1; m.selected.y + i < rowsAndColums && m.selected.x - i >= 0; i++ {
+                moveCoor := coordinate{m.selected.x - i, m.selected.y + i}
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+            // left up
+            for i := 1; m.selected.y - i >= 0 && m.selected.x - i >= 0; i++ {
+                moveCoor := coordinate{m.selected.x - i, m.selected.y - i}
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
 
 
         default:
