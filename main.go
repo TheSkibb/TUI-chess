@@ -240,6 +240,7 @@ func (m *model) calculateMoves(){
     }else{
         switch piece.unicode{
 
+        /* pawn movement */
         case "♙", "♟︎":
             if piece.pieceColor == white {
                 direction = -1
@@ -265,28 +266,45 @@ func (m *model) calculateMoves(){
                 m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x + 1, m.selected.y + 1 * direction})
             }
 
+        /* rook movement */
         case "♖", "♜":
             m.possibleMoves = []coordinate{
             }
 
             // down
             for i := 1; m.selected.y + i < rowsAndColums; i ++ {
-                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + i})
+                if m.checkIfEmpty(coordinate{m.selected.x, m.cursor.y + i}){
+                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y + i})
+                } else {
+                    break
+                }
             }
 
             // up
             for i := 1; m.selected.y - i >= 0; i ++ {
-                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y - i})
+                if m.checkIfEmpty(coordinate{m.selected.x, m.cursor.y - i}){
+                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x, m.selected.y - i})
+                } else {
+                    break
+                }
             }
 
             //left
             for i := 1; m.selected.x + i < rowsAndColums; i++ {
-                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x + i, m.selected.y})
+                if m.checkIfEmpty(coordinate{m.selected.x + i, m.cursor.y}){
+                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x + i, m.selected.y})
+                } else {
+                    break
+                }
             }
 
             // right
             for i := 1; m.selected.x - i >= 0; i++ {
-                m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x - i, m.selected.y})
+                if m.checkIfEmpty(coordinate{m.selected.x - i, m.cursor.y}){
+                    m.possibleMoves = append(m.possibleMoves, coordinate{m.selected.x - i, m.selected.y})
+                } else {
+                    break
+                }
             }
 
 
@@ -312,6 +330,12 @@ func createEmptyCoordinateArray(length int) []coordinate{
     return emptyArray
 }
 
+func (m model) checkIfEmpty(c coordinate) bool {
+    if m.board[c.y][c.x] == empty {
+        return true
+    } 
+    return false
+}
 
 func (m  *model) selectSquare(){
     logToFile("selected: " + strconv.Itoa(m.cursor.x) + " " + strconv.Itoa(m.cursor.y))
