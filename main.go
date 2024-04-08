@@ -632,6 +632,11 @@ func (m  *model) selectSquare(){
             }
         }
 
+        //check if selection is an empty selectSquare
+        if m.board[m.cursor.y][m.cursor.x] == empty {
+            return
+        }
+
         m.selected = coordinate{m.cursor.x, m.cursor.y}
 
         m.calculateMoves()
