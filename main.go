@@ -1,9 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-    "errors"
 	"os"
+	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -13,6 +14,7 @@ type model struct {
     selected coordinate
     board [8][8]piece
     possibleMoves []coordinate
+    captured []piece
 }
 
 type coordinate struct {
@@ -639,6 +641,11 @@ func (m  *model) selectSquare(){
 func (m *model) movePiece(pos coordinate, piecePos coordinate){
 
     piece := m.board[m.selected.y][m.selected.x]
+
+    //capturing
+    if m.board[pos.y][pos.x] != empty {
+        m.captured = append(m.captured, m.board[pos.y][pos.x])
+    }
 
     //move piece
     m.board[pos.y][pos.x] = piece
