@@ -660,7 +660,7 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
     m.possibleMoves = []coordinate{}
 }
 
-//create a string of 
+//create a string of the unicode characters for an array of pieces
 func pieceArrToString(a []piece) string {
     str := ""
 
