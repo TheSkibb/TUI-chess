@@ -4,7 +4,6 @@ import (
 	"fmt"
     "errors"
 	"os"
-	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -120,6 +119,20 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardTestKnight,
+            }
+        
+        case "testQueen":
+        return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardTestQueen,
+            }
+
+        case "testKing":
+        return nil, model {
+                cursor: coordinate{0, 0},
+                selected: coordinate{-1, -1},
+                board: boardTestKing,
             }
 
         case "testEmpty":
@@ -424,7 +437,143 @@ func (m *model) calculateMoves(){
             for _, move := range checkMoves {
                 if move.x >= rowsAndColums || move.x < 0 || move.y >= rowsAndColums || move.y < 0 {
                     continue
+                 }
+                if m.checkIfEmpty(move){
+                    m.possibleMoves = append(m.possibleMoves, move)
+                } else if !m.checkIfSameColor(move, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, move)
+                    continue
+                } else {
+                    continue
                 }
+            }
+
+        /* queen movement */
+        case "♕", "♛":
+            m.possibleMoves = []coordinate{}
+            // queen logic is just copy paste rook and bishop
+
+            // down
+            for i := 1; m.selected.y + i < rowsAndColums; i ++ {
+                moveCoor := coordinate{m.selected.x, m.cursor.y + i}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+            // up
+            for i := 1; m.selected.y - i >= 0; i ++ {
+                moveCoor := coordinate{m.selected.x, m.cursor.y - i}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+            //left
+            for i := 1; m.selected.x + i < rowsAndColums; i++ {
+                moveCoor := coordinate{m.selected.x + i, m.cursor.y}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+            // left
+            for i := 1; m.selected.x - i >= 0; i++ {
+                
+                moveCoor := coordinate{m.selected.x - i, m.cursor.y}
+
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+            
+            // right down
+            for i := 1; m.selected.y + i < rowsAndColums && m.selected.x + i < rowsAndColums; i++ {
+                moveCoor := coordinate{m.selected.x + i, m.selected.y + i}
+                m.possibleMoves = append(m.possibleMoves, moveCoor)
+            }
+
+            // right up
+            for i := 1; m.selected.y - i >= 0 && m.selected.x + i < rowsAndColums; i++ {
+                moveCoor := coordinate{m.selected.x + i, m.selected.y - i}
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+            // left down
+            for i := 1; m.selected.y + i < rowsAndColums && m.selected.x - i >= 0; i++ {
+                moveCoor := coordinate{m.selected.x - i, m.selected.y + i}
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+            // left up
+            for i := 1; m.selected.y - i >= 0 && m.selected.x - i >= 0; i++ {
+                moveCoor := coordinate{m.selected.x - i, m.selected.y - i}
+                if m.checkIfEmpty(moveCoor){
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                    m.possibleMoves = append(m.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
+            }
+
+
+
+        /* king movement */
+        case "♔", "♚":
+            m.possibleMoves = []coordinate{}
+            checkMoves := []coordinate{
+                {m.selected.x + 1, m.selected.y},
+                {m.selected.x - 1, m.selected.y},
+                {m.selected.x, m.selected.y + 1},
+                {m.selected.x, m.selected.y - 1},
+                {m.selected.x + 1, m.selected.y + 1},
+                {m.selected.x + 1, m.selected.y - 1},
+                {m.selected.x - 1, m.selected.y + 1},
+                {m.selected.x - 1, m.selected.y - 1},
+            }
+            for _, move := range checkMoves {
+                if move.x >= rowsAndColums || move.x < 0 || move.y >= rowsAndColums || move.y < 0 {
+                    continue
+                 }
                 if m.checkIfEmpty(move){
                     m.possibleMoves = append(m.possibleMoves, move)
                 } else if !m.checkIfSameColor(move, m.selected) {

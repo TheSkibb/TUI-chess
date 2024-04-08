@@ -55,6 +55,28 @@ var boardTestKnight = [8][8]piece{
    {empty, pawnWhite, empty, empty, empty, pawnBlack, empty, empty},
 }
 
+var boardTestQueen = [8][8]piece{
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, queenBlack, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+}
+
+var boardTestKing = [8][8]piece{
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, kingWhite, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, empty, empty, empty, empty, empty},
+   {empty, empty, empty, pawnWhite, pawnBlack, empty, empty, empty},
+   {empty, empty, empty, kingWhite, empty, empty, empty, empty},
+}
+
 
 var boardTestEmpty = [8][8]piece{
    {empty, empty, empty, empty, empty, empty, empty, empty},
