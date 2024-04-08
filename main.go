@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -14,7 +13,8 @@ type model struct {
     selected coordinate
     board [8][8]piece
     possibleMoves []coordinate
-    captured []piece
+    capturedP1 []piece
+    capturedP2 []piece
 }
 
 type coordinate struct {
@@ -202,7 +202,7 @@ func (m model) View() string{
     s := ""
 
 
-    s += player2Name + ": []\n"
+    s += player2Name + ": [" +pieceArrToString(m.capturedP2) + "]\n"
 
     s += "|---||---||---||---||---||---||---||---|\n"
 
@@ -260,7 +260,7 @@ func (m model) View() string{
     }
 
 
-    s += player1Name + ": []\n"
+    s += player1Name + ": [" + pieceArrToString(m.capturedP1) + "]\n"
 
     return s
 }
@@ -644,7 +644,11 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
 
     //capturing
     if m.board[pos.y][pos.x] != empty {
-        m.captured = append(m.captured, m.board[pos.y][pos.x])
+        if m.board[pos.y][pos.x].pieceColor == white {
+            m.capturedP2 = append(m.capturedP2, m.board[pos.y][pos.x])
+        } else {
+            m.capturedP1 = append(m.capturedP1, m.board[pos.y][pos.x])
+        }
     }
 
     //move piece
@@ -654,6 +658,20 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
     //reset selected and possibleMoves
     m.selected = coordinate{-1, -1}
     m.possibleMoves = []coordinate{}
+}
+
+//create a string of 
+func pieceArrToString(a []piece) string {
+    str := ""
+
+    for i, piece := range a {
+        str += piece.unicode
+        if i != len(a) - 1 {
+            str += " "
+        }
+    }
+
+    return str
 }
 
 func logToFile(msg string){
