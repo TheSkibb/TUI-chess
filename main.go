@@ -16,6 +16,8 @@ type model struct {
     capturedP1 []piece
     capturedP2 []piece
     moveLog []string
+    player1 player
+    player2 player
 }
 
 type coordinate struct {
@@ -26,6 +28,11 @@ type coordinate struct {
 type piece struct {
     unicode string
     pieceColor pieceColor
+}
+
+type player struct {
+    name string
+    possibleMoves []coordinate
 }
 
 type pieceColor string
@@ -53,9 +60,6 @@ var White  = "\033[97m"
 var highlightColor = Blue
 var selectedColor = Red
 var possibleMoveColor = Yellow
-
-var player1Name = "player 1"
-var player2Name = "player 2"
 
 
 func main(){
@@ -94,6 +98,12 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardDefault,
+                player1: player{
+                    name: "player 1",
+                },
+                player2: player{
+                    name: "player 2",
+                },
             }
 
         case "testRook":
@@ -101,6 +111,12 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardTestRook,
+                player1: player{
+                    name: "player 1",
+                },
+                player2: player{
+                    name: "player 2",
+                },
             }
 
         case "testPawn":
@@ -108,6 +124,12 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardTestPawn,
+                player1: player{
+                    name: "player 1",
+                },
+                player2: player{
+                    name: "player 2",
+                },
             }
 
         case "testBishop":
@@ -115,6 +137,12 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardTestBishop,
+                player1: player{
+                    name: "player 1",
+                },
+                player2: player{
+                    name: "player 2",
+                },
             }
 
         case "testKnight":
@@ -129,6 +157,12 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardTestQueen,
+                player1: player{
+                    name: "player 1",
+                },
+                player2: player{
+                    name: "player 2",
+                },
             }
 
         case "testKing":
@@ -136,6 +170,12 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardTestKing,
+                player1: player{
+                    name: "player 1",
+                },
+                player2: player{
+                    name: "player 2",
+                },
             }
 
         case "testEmpty":
@@ -143,6 +183,12 @@ func initialModel(mode string) (error, model) {
                 cursor: coordinate{0, 0},
                 selected: coordinate{-1, -1},
                 board: boardTestEmpty,
+                player1: player{
+                    name: "player 1",
+                },
+                player2: player{
+                    name: "player 2",
+                },
             }
 
     default:
@@ -209,7 +255,7 @@ func (m model) View() string{
     s := ""
 
 
-    s += player2Name + ": [" +pieceArrToString(m.capturedP2) + "]\n"
+    s += m.player2.name + ": [" +pieceArrToString(m.capturedP2) + "]\n"
 
     s += "|---||---||---||---||---||---||---||---|\n"
 
@@ -267,7 +313,7 @@ func (m model) View() string{
     }
 
 
-    s += player1Name + ": [" + pieceArrToString(m.capturedP1) + "]\n"
+    s += m.player1.name + ": [" + pieceArrToString(m.capturedP1) + "]\n"
 
     return s
 }
