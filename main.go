@@ -18,6 +18,9 @@ type model struct {
     moveLog []string
     player1 player
     player2 player
+
+    // player turn can be 1 for player1, 2 for player2 or 0 if freemoving
+    playerTurn int
 }
 
 type coordinate struct {
@@ -38,8 +41,8 @@ type player struct {
 type pieceColor string
 
 const (
-    black pieceColor = "black"
-    white pieceColor = "white"
+    pieceColorBlack pieceColor = "black"
+    pieceColorWhite pieceColor = "white"
 )
 
 const rowsAndColums = 8
@@ -92,104 +95,49 @@ func main(){
 }
 
 func initialModel(mode string) (error, model) {
+    m := model {
+        cursor: coordinate{0, 0},
+        selected: coordinate{-1, -1},
+        board: boardDefault,
+        player1: player{
+            name: "player 1",
+        },
+        player2: player{
+            name: "player 2",
+        },
+    }
     switch mode{
         case "default":
-            return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardDefault,
-                player1: player{
-                    name: "player 1",
-                },
-                player2: player{
-                    name: "player 2",
-                },
-            }
+            m.playerTurn = 1
+            return nil, m
 
         case "testRook":
-            return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardTestRook,
-                player1: player{
-                    name: "player 1",
-                },
-                player2: player{
-                    name: "player 2",
-                },
-            }
+            m.board = boardTestRook
+            return nil, m
 
         case "testPawn":
-            return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardTestPawn,
-                player1: player{
-                    name: "player 1",
-                },
-                player2: player{
-                    name: "player 2",
-                },
-            }
+            m.board = boardTestPawn
+            return nil, m
 
         case "testBishop":
-        return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardTestBishop,
-                player1: player{
-                    name: "player 1",
-                },
-                player2: player{
-                    name: "player 2",
-                },
-            }
+            m.board = boardTestBishop
+            return nil, m
 
         case "testKnight":
-        return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardTestKnight,
-            }
+            m.board = boardTestKnight
+            return nil, m
         
         case "testQueen":
-        return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardTestQueen,
-                player1: player{
-                    name: "player 1",
-                },
-                player2: player{
-                    name: "player 2",
-                },
-            }
+            m.board = boardTestQueen
+        return nil, m
 
         case "testKing":
-        return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardTestKing,
-                player1: player{
-                    name: "player 1",
-                },
-                player2: player{
-                    name: "player 2",
-                },
-            }
+            m.board = boardTestKing
+        return nil, m
 
         case "testEmpty":
-            return nil, model {
-                cursor: coordinate{0, 0},
-                selected: coordinate{-1, -1},
-                board: boardTestEmpty,
-                player1: player{
-                    name: "player 1",
-                },
-                player2: player{
-                    name: "player 2",
-                },
-            }
+            m.board = boardTestEmpty
+            return nil, m
 
     default:
         return errors.New("unrecognized board"), model{}
@@ -332,7 +280,7 @@ func (m *model) calculateMoves(){
 
         /* pawn movement */
         case "♙", "♟︎":
-            if piece.pieceColor == white {
+            if piece.pieceColor == pieceColorWhite {
                 direction = -1
             }
 
@@ -669,11 +617,18 @@ func (m model) checkIfSameColor(c1 coordinate, c2 coordinate) bool {
 }
 
 func (m  *model) selectSquare(){
+
+    piece := m.board[m.cursor.y][m.cursor.x]
     
     //check player is deselecting
     if m.selected == m.cursor{
         m.selected = coordinate{-1, -1}
         m.possibleMoves = []coordinate{}
+
+    //check if player is selecting the right piece
+    } else if (m.playerTurn == 1 && piece.pieceColor == pieceColorBlack) || 
+        (m.playerTurn == 2 && piece.pieceColor == pieceColorWhite) {
+        return
     } else {
         /* selecting */
 
@@ -702,7 +657,7 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
 
     //capturing
     if m.board[pos.y][pos.x] != empty {
-        if m.board[pos.y][pos.x].pieceColor == white {
+        if m.board[pos.y][pos.x].pieceColor == pieceColorWhite {
             m.capturedP2 = append(m.capturedP2, m.board[pos.y][pos.x])
         } else {
             m.capturedP1 = append(m.capturedP1, m.board[pos.y][pos.x])
@@ -716,6 +671,13 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
     //reset selected and possibleMoves
     m.selected = coordinate{-1, -1}
     m.possibleMoves = []coordinate{}
+
+    // switch turn
+    if m.playerTurn == 1 {
+        m.playerTurn = 2
+    } else if m.playerTurn == 2 {
+        m.playerTurn = 1
+    }
 }
 
 // adds the move to the list of moves formatted as a chess move
