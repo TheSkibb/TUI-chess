@@ -96,7 +96,6 @@ func main(){
 
 func initialModel(mode string) (error, model) {
     m := model {
-        cursor: coordinate{0, 0},
         selected: coordinate{-1, -1},
         board: boardDefault,
         player1: player{
@@ -108,6 +107,7 @@ func initialModel(mode string) (error, model) {
     }
     switch mode{
         case "default":
+            m.cursor = coordinate{4, 7}
             m.playerTurn = 1
             return nil, m
 
