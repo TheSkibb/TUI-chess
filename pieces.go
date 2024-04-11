@@ -4,62 +4,62 @@ package main
 
 var pawnBlack = piece{
     unicode : "♙",
-    pieceColor: black,
+    pieceColor: pieceColorBlack,
 }
 
 var rookBlack = piece{
     unicode: "♖",
-    pieceColor: black,
+    pieceColor: pieceColorBlack,
 }
 
 var knightBlack = piece{
     unicode: "♘",
-    pieceColor: black,
+    pieceColor: pieceColorBlack,
 }
 
 var bishopBlack = piece{
     unicode: "♗",
-    pieceColor: black,
+    pieceColor: pieceColorBlack,
 }
 
 var queenBlack = piece{
     unicode: "♕",
-    pieceColor: black,
+    pieceColor: pieceColorBlack,
 }
 
 var kingBlack = piece{
     unicode: "♔",
-    pieceColor: black,
+    pieceColor: pieceColorBlack,
 }
 
 var pawnWhite = piece{
     unicode : "♟︎",
-    pieceColor: white,
+    pieceColor: pieceColorWhite,
 }
 
 var rookWhite = piece{
     unicode: "♜",
-    pieceColor: white,
+    pieceColor: pieceColorWhite,
 }
 
 var knightWhite = piece{
     unicode: "♞",
-    pieceColor: white,
+    pieceColor: pieceColorWhite,
 }
 
 var bishopWhite = piece{
     unicode: "♝",
-    pieceColor: white,
+    pieceColor: pieceColorWhite,
 }
 
 var queenWhite = piece{
     unicode: "♛",
-    pieceColor: white,
+    pieceColor: pieceColorWhite,
 }
 
 var kingWhite = piece{
     unicode: "♚",
-    pieceColor: white,
+    pieceColor: pieceColorWhite,
 }
 
 var empty = piece{
