@@ -96,6 +96,7 @@ func main(){
 
 func initialModel(mode string) (error, model) {
     m := model {
+        cursor: coordinate{4, 4},
         selected: coordinate{-1, -1},
         board: boardDefault,
         player1: player{
