@@ -15,6 +15,7 @@ type model struct {
     possibleMoves []coordinate
     capturedP1 []piece
     capturedP2 []piece
+    moveLog []string
 }
 
 type coordinate struct {
@@ -165,30 +166,35 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         // Cool, what was the actual key pressed?
         switch msg.String() {
 
-        // These keys should exit the program.
+        /* quit program */
         case "ctrl+c", "ctrl+d", "q":
             return m, tea.Quit
 
+        /* move cursor down */
         case "j", "down":
             if m.cursor.y < rowsAndColums - 1 {
                 m.cursor.y ++
             }
 
+        /* move cursor up */
         case "k", "up":
             if m.cursor.y != 0 {
                 m.cursor.y --
             }
 
+        /* move cursor right */
         case "l", "right":
             if m.cursor.x < rowsAndColums - 1 {
                 m.cursor.x ++
             }
 
+        /* move cursor left */
         case "h", "left":
             if m.cursor.x != 0{
                 m.cursor.x --
             }
 
+        /* select piece */
         case "enter", " ":
             m.selectSquare()
         }
@@ -663,6 +669,12 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
     //reset selected and possibleMoves
     m.selected = coordinate{-1, -1}
     m.possibleMoves = []coordinate{}
+}
+
+// adds the move to the list of moves formatted as a chess move
+// https://www.chessstrategyonline.com/content/tutorials/basic-chess-concepts-chess-notation
+// https://en.wikipedia.org/wiki/Portable_Game_Notation
+func (m model) logMove(original_pos coordinate, new_pos coordinate){
 }
 
 //create a string of the unicode characters for an array of pieces
