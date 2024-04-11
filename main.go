@@ -168,6 +168,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
         /* quit program */
         case "ctrl+c", "ctrl+d", "q":
+            fmt.Println("Thanks for playing!")
             return m, tea.Quit
 
         /* move cursor down */
@@ -675,6 +676,11 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
 // https://www.chessstrategyonline.com/content/tutorials/basic-chess-concepts-chess-notation
 // https://en.wikipedia.org/wiki/Portable_Game_Notation
 func (m model) logMove(original_pos coordinate, new_pos coordinate){
+}
+
+// check if the king is in check
+func (m model) checkForCheck() bool{
+    return false
 }
 
 //create a string of the unicode characters for an array of pieces
