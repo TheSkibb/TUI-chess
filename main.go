@@ -626,10 +626,6 @@ func (m  *model) selectSquare(){
         m.selected = coordinate{-1, -1}
         m.possibleMoves = []coordinate{}
 
-    //check if player is selecting the right piece
-    } else if (m.playerTurn == 1 && piece.pieceColor == pieceColorBlack) || 
-        (m.playerTurn == 2 && piece.pieceColor == pieceColorWhite) {
-        return
     } else {
         /* selecting */
 
@@ -639,6 +635,12 @@ func (m  *model) selectSquare(){
                 m.movePiece(pos, m.cursor)
                 return
             }
+        }
+
+        //check if player is selecting the right piece
+        if (m.playerTurn == 1 && piece.pieceColor == pieceColorBlack) || 
+            (m.playerTurn == 2 && piece.pieceColor == pieceColorWhite) {
+            return
         }
 
         //check if selection is an empty selectSquare
