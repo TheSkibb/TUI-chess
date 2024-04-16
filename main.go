@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -36,6 +38,7 @@ type piece struct {
 type player struct {
     name string
     possibleMoves []coordinate
+    checked bool
 }
 
 type pieceColor string
@@ -60,17 +63,26 @@ var Cyan   = "\033[36m"
 var Gray   = "\033[37m"
 var White  = "\033[97m"
 
+/* text color defaults */
 var highlightColor = Blue
 var selectedColor = Red
 var possibleMoveColor = Yellow
-
+var boardColor = White
+var pieceMarkupColor = White
 
 func main(){
 
     logToFile("**** new start ****")
 
+    // read config file
+    err := setColors()
+
+    if err != nil {
+        fmt.Println("error in config file")
+        return 
+    }
+
     var model model
-    var err error
 
     args := os.Args[1:]
     if len(args) == 0 {
@@ -101,9 +113,11 @@ func initialModel(mode string) (error, model) {
         board: boardDefault,
         player1: player{
             name: "player 1",
+            checked: false,
         },
         player2: player{
             name: "player 2",
+            checked: false,
         },
     }
     switch mode{
@@ -206,7 +220,7 @@ func (m model) View() string{
 
     s += m.player2.name + ": [" +pieceArrToString(m.capturedP2) + "]\n"
 
-    s += "|---||---||---||---||---||---||---||---|\n"
+    s += boardColor + "|---||---||---||---||---||---||---||---|\n"
 
     for i := 0; i < rowsAndColums; i++ {
 
@@ -215,7 +229,7 @@ func (m model) View() string{
 
             piece := m.board[i][j]
 
-            color := White
+            color := boardColor
 
             if i == m.cursor.y && j == m.cursor.x {
                 color = highlightColor
@@ -232,14 +246,14 @@ func (m model) View() string{
                 }
             }
 
-            s += color + "| " + piece.unicode +" |" + White
+            s += color + "| " + pieceMarkupColor + piece.unicode + color + " |" + boardColor
         }
 
         s += "\n"
 
         // draw borders
         for j := 0; j < rowsAndColums; j++ {
-            color := White
+            color := boardColor
 
             for _, possibleMove := range m.possibleMoves{
                 if i == possibleMove.y && j == possibleMove.x || i == possibleMove.y - 1 && j == possibleMove.x {
@@ -255,7 +269,7 @@ func (m model) View() string{
                 color = highlightColor
             }
 
-            s += color + "|---|" + White
+            s += color + "|---|" + boardColor
         }
 
         s += "\n"
@@ -707,6 +721,75 @@ func pieceArrToString(a []piece) string {
 
     return str
 }
+
+func setColors() error {
+
+    readFile, err := os.Open("./conf.txt")
+
+    if err != nil {
+        fmt.Println(err)
+    }
+    fileScanner := bufio.NewScanner(readFile)
+
+    fileScanner.Split(bufio.ScanLines)
+
+    for fileScanner.Scan() {
+        setColorConfig(fileScanner.Text())
+    }
+
+    readFile.Close()
+
+    return nil
+}
+
+func setColorConfig(config string) error {
+    line_split := strings.Split(config, " ")
+    var err error
+
+    if len(line_split) != 2 {
+        return errors.New("malformed config line")
+    }
+
+    switch line_split[0]{
+        case "board-color": 
+            err, boardColor = getColor(line_split[1])
+        case "piece-color":
+            err, pieceMarkupColor = getColor(line_split[1])
+        case "select-color":
+            err, selectedColor = getColor(line_split[1])
+        case "highlight-color":
+            err, highlightColor = getColor(line_split[1])
+        case "possible-color":
+            err, possibleMoveColor = getColor(line_split[1])
+    }
+
+    return err
+}
+
+func getColor(c string) (error, string) {
+    switch c{
+        case "red", "Red":
+            return nil, Red
+        case "green", "Green":
+            return nil, Green
+        case "yellow", "Yellow":
+            return nil, Yellow
+        case "blue", "Blue":
+            return nil, Blue
+        case "purple", "Purple":
+            return nil, Purple
+        case "cyan", "Cyan":
+            return nil, Cyan
+        case "gray", "Gray":
+            return nil, Gray
+        case "white", "White":
+            return nil, White
+    }
+    return nil, ""
+}
+
+
+
 
 func logToFile(msg string){
     if debugging == 0 {

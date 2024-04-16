@@ -1,0 +1,5 @@
+board-color red
+piece-color cyan
+highlight-color purple
+select-color yellow
+possible-color green
