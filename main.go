@@ -727,19 +727,19 @@ func setColors() error {
     readFile, err := os.Open("./conf.txt")
 
     if err != nil {
-        fmt.Println(err)
+        return nil
     }
     fileScanner := bufio.NewScanner(readFile)
 
     fileScanner.Split(bufio.ScanLines)
 
     for fileScanner.Scan() {
-        setColorConfig(fileScanner.Text())
+        err = setColorConfig(fileScanner.Text())
     }
 
     readFile.Close()
 
-    return nil
+    return err
 }
 
 func setColorConfig(config string) error {
