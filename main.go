@@ -51,8 +51,7 @@ const (
 const rowsAndColums = 8
 const debugging = 1
 
-//colors 
-
+/* colors */
 var Reset  = "\033[0m"
 var Red    = "\033[31m"
 var Green  = "\033[32m"
@@ -727,7 +726,7 @@ func setColors() error {
     readFile, err := os.Open("./conf.txt")
 
     if err != nil {
-        return nil
+        fmt.Println("test", err)
     }
     fileScanner := bufio.NewScanner(readFile)
 
