@@ -52,15 +52,15 @@ const rowsAndColums = 8
 const debugging = 1
 
 /* colors */
-var Reset  = "\033[0m"
-var Red    = "\033[31m"
-var Green  = "\033[32m"
-var Yellow = "\033[33m"
-var Blue   = "\033[34m"
-var Purple = "\033[35m"
-var Cyan   = "\033[36m"
-var Gray   = "\033[37m"
-var White  = "\033[97m"
+const Reset  = "\033[0m"
+const Red    = "\033[31m"
+const Green  = "\033[32m"
+const Yellow = "\033[33m"
+const Blue   = "\033[34m"
+const Purple = "\033[35m"
+const Cyan   = "\033[36m"
+const Gray   = "\033[37m"
+const White  = "\033[97m"
 
 /* text color defaults */
 var highlightColor = Blue
