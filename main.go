@@ -726,7 +726,7 @@ func setColors() error {
     readFile, err := os.Open("./conf.txt")
 
     if err != nil {
-        fmt.Println("test", err)
+        return nil
     }
     fileScanner := bufio.NewScanner(readFile)
 
