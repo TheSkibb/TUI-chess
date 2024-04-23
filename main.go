@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+    "strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -216,10 +217,15 @@ func (m model) View() string{
 
     s := ""
 
-
     s += m.player2.name + ": [" +pieceArrToString(m.capturedP2) + "]\n"
 
     s += boardColor + "|---||---||---||---||---||---||---||---|\n"
+
+    var selectedPiece piece
+
+    if m.selected.x != -1 {
+        selectedPiece = m.board[m.selected.y][m.selected.x]
+    }
 
     for i := 0; i < rowsAndColums; i++ {
 
@@ -238,14 +244,14 @@ func (m model) View() string{
                 color = selectedColor
             }
 
-            /* TODO: fix to display the possible moves of the selected piece
-            for _, possibleMove := range m.possibleMoves{
-                if i == possibleMove.y && j == possibleMove.x {
-                    color = possibleMoveColor
-                    break
+            if m.selected.x != -1 {
+                for _, possibleMove := range selectedPiece.possibleMoves{
+                    if i == possibleMove.y && j == possibleMove.x {
+                        color = possibleMoveColor
+                        break
+                    }
                 }
             }
-            */
 
             s += color + "| " + pieceMarkupColor + piece.unicode + color + " |" + boardColor
         }
@@ -256,14 +262,14 @@ func (m model) View() string{
         for j := 0; j < rowsAndColums; j++ {
             color := boardColor
 
-            /* TODO fix to display the possible moves of the current selected piece
-            for _, possibleMove := range m.possibleMoves{
-                if i == possibleMove.y && j == possibleMove.x || i == possibleMove.y - 1 && j == possibleMove.x {
-                    color = possibleMoveColor
-                    break
+            if m.selected.x != -1 {
+                for _, possibleMove := range selectedPiece.possibleMoves{
+                    if i == possibleMove.y && j == possibleMove.x || i == possibleMove.y - 1 && j == possibleMove.x {
+                        color = possibleMoveColor
+                        break
+                    }
                 }
             }
-            */
 
             if i == m.selected.y && j == m.selected.x || i == m.selected.y - 1 && j == m.selected.x {
                 color = selectedColor
@@ -313,7 +319,15 @@ func (m model) checkIfSameColor(c1 coordinate, c2 coordinate) bool {
 
 func (m  *model) selectSquare(){
 
-    piece := m.board[m.cursor.y][m.cursor.x]
+    logToFile("square selected")
+        logToFile("1")
+
+    cursorpiece := m.board[m.cursor.y][m.cursor.x]
+    var selectedPiece piece
+
+    if m.selected.x != -1 {
+        selectedPiece = m.board[m.selected.y][m.selected.x]
+    }
     
     //check player is deselecting
     if m.selected == m.cursor{
@@ -322,21 +336,24 @@ func (m  *model) selectSquare(){
         //m.possibleMoves = []coordinate{}
 
     } else {
-        /* selecting */
 
         //check if selection is a possible move
-        /* TODO fix moving of pieces by selecting a possible move
-        for _, pos := range m.possibleMoves{
-            if pos == m.cursor{
-                m.movePiece(pos, m.cursor)
-                return
+        /* TODO fix moving of pieces by selecting a possible move */
+        if m.selected.x != -1 {
+            for _, pos := range selectedPiece.possibleMoves{
+                logToFile(strconv.Itoa(pos.x) + strconv.Itoa(pos.y))
+                logToFile(strconv.Itoa(m.cursor.x) + strconv.Itoa(m.cursor.y))
+                if pos == m.cursor{
+                    m.movePiece(pos, m.cursor)
+                    logToFile("moved piece")
+                    return
+                }
             }
         }
-        */
 
         //check if player is selecting the right piece
-        if (m.playerTurn == 1 && piece.pieceColor == pieceColorBlack) || 
-            (m.playerTurn == 2 && piece.pieceColor == pieceColorWhite) {
+        if (m.playerTurn == 1 && cursorpiece.pieceColor == pieceColorBlack) || 
+            (m.playerTurn == 2 && cursorpiece.pieceColor == pieceColorWhite) {
             return
         }
 
@@ -828,9 +845,6 @@ func getColor(c string) (error, string) {
     }
     return nil, ""
 }
-
-
-
 
 func logToFile(msg string){
     if debugging == 0 {
