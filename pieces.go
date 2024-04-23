@@ -5,6 +5,7 @@ package main
 var pawnBlack = piece{
     unicode : "♙",
     pieceColor: pieceColorBlack,
+    possibleMoves: []coordinate{{1, 2}, {0, 0}},
 }
 
 var rookBlack = piece{
@@ -35,6 +36,7 @@ var kingBlack = piece{
 var pawnWhite = piece{
     unicode : "♟︎",
     pieceColor: pieceColorWhite,
+    possibleMoves: []coordinate{{1, 2}, {0, 0}},
 }
 
 var rookWhite = piece{
