@@ -129,6 +129,7 @@ func initialModel(mode string) (error, model) {
 
         case "testRook":
             m.board = boardTestRook
+            m.calculateMoves()
             return nil, m
 
         case "testPawn":
@@ -299,6 +300,7 @@ func (m *model) calculateMoves(){
 
     for i := 0; i < rowsAndColums; i++ {
         for j := 0; j < rowsAndColums; j++ {
+            logToFile("here")
             m.calculatePossibleMoves(coordinate{i, j})
         }
     }
@@ -412,13 +414,13 @@ func (m *model) calculatePossibleMoves(c coordinate){
     switch piece.unicode{
         /* pawn movement */
         case "♙", "♟︎":
+            logToFile("calculating pawn moves")
             m.calculatePossibleMovesPawn(c)
 
         /* rook movement */
-        /*
         case "♖", "♜":
+            logToFile("calculating rook moves")
             m.calculatePossibleMovesRook(c)
-        */
 
         /* bishop movement */
         /*
@@ -459,7 +461,7 @@ func (m *model) calculatePossibleMovesPawn(pos coordinate){
     }
 
     //check forward
-    if m.board[pos.y + 1 * direction][pos.x].unicode == empty.unicode {
+    if pos.y != 0 && pos.y != rowsAndColums -1 && m.board[pos.y + 1 * direction][pos.x].unicode == empty.unicode {
         piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x, pos.y + 1 * direction})
     }
 
@@ -471,12 +473,12 @@ func (m *model) calculatePossibleMovesPawn(pos coordinate){
     }
 
     //check for diagonals
-    if pos.x != 0 && 
+    if pos.x != 0 && pos.y != 0 && pos.y != rowsAndColums &&
     m.board[pos.y + 1 * direction][pos.x - 1].unicode != empty.unicode && 
     !m.checkIfSameColor(coordinate{pos.x - 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
         piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x - 1, pos.y + 1 * direction})
     }
-    if pos.x != 7 && 
+    if pos.x != 7 && pos.y != 0 && pos.y != rowsAndColums &&
     m.board[pos.y + 1 * direction][pos.x + 1].unicode != empty.unicode &&
     !m.checkIfSameColor(coordinate{pos.x + 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
         piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x + 1, pos.y + 1 * direction})
@@ -485,18 +487,18 @@ func (m *model) calculatePossibleMovesPawn(pos coordinate){
 
 func (m *model) calculatePossibleMovesRook(pos coordinate){
 
-    piece := m.board[pos.y][pos.x]
+    piece := &m.board[pos.y][pos.x]
 
     piece.possibleMoves = []coordinate{
     }
 
     // down
-    for i := 1; m.selected.y + i < rowsAndColums; i ++ {
-        moveCoor := coordinate{m.selected.x, m.cursor.y + i}
+    for i := 1; pos.y + i < rowsAndColums; i ++ {
+        moveCoor := coordinate{pos.x, pos.y + i}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -505,12 +507,12 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
     }
 
     // up
-    for i := 1; m.selected.y - i >= 0; i ++ {
-        moveCoor := coordinate{m.selected.x, m.cursor.y - i}
+    for i := 1; pos.y - i >= 0; i ++ {
+        moveCoor := coordinate{pos.x, pos.y - i}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -519,12 +521,12 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
     }
 
     //left
-    for i := 1; m.selected.x + i < rowsAndColums; i++ {
-        moveCoor := coordinate{m.selected.x + i, m.cursor.y}
+    for i := 1; pos.x + i < rowsAndColums; i++ {
+        moveCoor := coordinate{pos.x + i, pos.y}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -533,13 +535,13 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
     }
 
     // left
-    for i := 1; m.selected.x - i >= 0; i++ {
+    for i := 1; pos.x - i >= 0; i++ {
         
-        moveCoor := coordinate{m.selected.x - i, m.cursor.y}
+        moveCoor := coordinate{pos.x - i, pos.y}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -555,17 +557,17 @@ func (m *model) calculatePossibleMovesBishop(pos coordinate){
     piece.possibleMoves = []coordinate{}
             
             // right down
-            for i := 1; m.selected.y + i < rowsAndColums && m.selected.x + i < rowsAndColums; i++ {
-                moveCoor := coordinate{m.selected.x + i, m.selected.y + i}
+            for i := 1; pos.y + i < rowsAndColums && pos.x + i < rowsAndColums; i++ {
+                moveCoor := coordinate{pos.x + i, pos.y + i}
                 piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             }
 
             // right up
-            for i := 1; m.selected.y - i >= 0 && m.selected.x + i < rowsAndColums; i++ {
-                moveCoor := coordinate{m.selected.x + i, m.selected.y - i}
+            for i := 1; pos.y - i >= 0 && pos.x + i < rowsAndColums; i++ {
+                moveCoor := coordinate{pos.x + i, pos.y - i}
                 if m.checkIfEmpty(moveCoor){
                     piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                } else if !m.checkIfSameColor(moveCoor, pos) {
                     piece.possibleMoves = append(piece.possibleMoves, moveCoor)
                     break
                 } else {
@@ -574,11 +576,11 @@ func (m *model) calculatePossibleMovesBishop(pos coordinate){
             }
 
             // left down
-            for i := 1; m.selected.y + i < rowsAndColums && m.selected.x - i >= 0; i++ {
-                moveCoor := coordinate{m.selected.x - i, m.selected.y + i}
+            for i := 1; pos.y + i < rowsAndColums && pos.x - i >= 0; i++ {
+                moveCoor := coordinate{pos.x - i, pos.y + i}
                 if m.checkIfEmpty(moveCoor){
                     piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                } else if !m.checkIfSameColor(moveCoor, pos) {
                     piece.possibleMoves = append(piece.possibleMoves, moveCoor)
                     break
                 } else {
@@ -587,11 +589,11 @@ func (m *model) calculatePossibleMovesBishop(pos coordinate){
             }
 
             // left up
-            for i := 1; m.selected.y - i >= 0 && m.selected.x - i >= 0; i++ {
-                moveCoor := coordinate{m.selected.x - i, m.selected.y - i}
+            for i := 1; pos.y - i >= 0 && pos.x - i >= 0; i++ {
+                moveCoor := coordinate{pos.x - i, pos.y - i}
                 if m.checkIfEmpty(moveCoor){
                     piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                } else if !m.checkIfSameColor(moveCoor, m.selected) {
+                } else if !m.checkIfSameColor(moveCoor, pos) {
                     piece.possibleMoves = append(piece.possibleMoves, moveCoor)
                     break
                 } else {
@@ -606,14 +608,14 @@ func (m *model) calculatePossibleMovesKnight(pos coordinate){
     piece.possibleMoves = []coordinate{}
 
     checkMoves := []coordinate{
-        {m.selected.x + 1, m.cursor.y + 2},
-        {m.selected.x + 1, m.cursor.y - 2},
-        {m.selected.x - 1, m.cursor.y + 2},
-        {m.selected.x - 1, m.cursor.y - 2},
-        {m.selected.x + 2, m.cursor.y + 1},
-        {m.selected.x + 2, m.cursor.y - 1},
-        {m.selected.x - 2, m.cursor.y + 1},
-        {m.selected.x - 2, m.cursor.y - 1},
+        {pos.x + 1, m.cursor.y + 2},
+        {pos.x + 1, m.cursor.y - 2},
+        {pos.x - 1, m.cursor.y + 2},
+        {pos.x - 1, m.cursor.y - 2},
+        {pos.x + 2, m.cursor.y + 1},
+        {pos.x + 2, m.cursor.y - 1},
+        {pos.x - 2, m.cursor.y + 1},
+        {pos.x - 2, m.cursor.y - 1},
     }
 
     for _, move := range checkMoves {
@@ -622,7 +624,7 @@ func (m *model) calculatePossibleMovesKnight(pos coordinate){
          }
         if m.checkIfEmpty(move){
             piece.possibleMoves = append(piece.possibleMoves, move)
-        } else if !m.checkIfSameColor(move, m.selected) {
+        } else if !m.checkIfSameColor(move, pos) {
             piece.possibleMoves = append(piece.possibleMoves, move)
             continue
         } else {
@@ -639,12 +641,12 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     // queen logic is just copy paste rook and bishop
 
     // down
-    for i := 1; m.selected.y + i < rowsAndColums; i ++ {
-        moveCoor := coordinate{m.selected.x, m.cursor.y + i}
+    for i := 1; pos.y + i < rowsAndColums; i ++ {
+        moveCoor := coordinate{pos.x, m.cursor.y + i}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -653,12 +655,12 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     }
 
     // up
-    for i := 1; m.selected.y - i >= 0; i ++ {
-        moveCoor := coordinate{m.selected.x, m.cursor.y - i}
+    for i := 1; pos.y - i >= 0; i ++ {
+        moveCoor := coordinate{pos.x, m.cursor.y - i}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -667,12 +669,12 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     }
 
     //left
-    for i := 1; m.selected.x + i < rowsAndColums; i++ {
-        moveCoor := coordinate{m.selected.x + i, m.cursor.y}
+    for i := 1; pos.x + i < rowsAndColums; i++ {
+        moveCoor := coordinate{pos.x + i, m.cursor.y}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -681,13 +683,13 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     }
 
     // left
-    for i := 1; m.selected.x - i >= 0; i++ {
+    for i := 1; pos.x - i >= 0; i++ {
         
-        moveCoor := coordinate{m.selected.x - i, m.cursor.y}
+        moveCoor := coordinate{pos.x - i, m.cursor.y}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -696,17 +698,17 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     }
     
     // right down
-    for i := 1; m.selected.y + i < rowsAndColums && m.selected.x + i < rowsAndColums; i++ {
-        moveCoor := coordinate{m.selected.x + i, m.selected.y + i}
+    for i := 1; pos.y + i < rowsAndColums && pos.x + i < rowsAndColums; i++ {
+        moveCoor := coordinate{pos.x + i, pos.y + i}
         piece.possibleMoves = append(piece.possibleMoves, moveCoor)
     }
 
     // right up
-    for i := 1; m.selected.y - i >= 0 && m.selected.x + i < rowsAndColums; i++ {
-        moveCoor := coordinate{m.selected.x + i, m.selected.y - i}
+    for i := 1; pos.y - i >= 0 && pos.x + i < rowsAndColums; i++ {
+        moveCoor := coordinate{pos.x + i, pos.y - i}
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -715,11 +717,11 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     }
 
     // left down
-    for i := 1; m.selected.y + i < rowsAndColums && m.selected.x - i >= 0; i++ {
-        moveCoor := coordinate{m.selected.x - i, m.selected.y + i}
+    for i := 1; pos.y + i < rowsAndColums && pos.x - i >= 0; i++ {
+        moveCoor := coordinate{pos.x - i, pos.y + i}
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -728,11 +730,11 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     }
 
     // left up
-    for i := 1; m.selected.y - i >= 0 && m.selected.x - i >= 0; i++ {
-        moveCoor := coordinate{m.selected.x - i, m.selected.y - i}
+    for i := 1; pos.y - i >= 0 && pos.x - i >= 0; i++ {
+        moveCoor := coordinate{pos.x - i, pos.y - i}
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-        } else if !m.checkIfSameColor(moveCoor, m.selected) {
+        } else if !m.checkIfSameColor(moveCoor, pos) {
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -747,14 +749,14 @@ func (m *model) calculatePossibleMovesKing(pos coordinate){
 
     piece.possibleMoves = []coordinate{}
     checkMoves := []coordinate{
-        {m.selected.x + 1, m.selected.y},
-        {m.selected.x - 1, m.selected.y},
-        {m.selected.x, m.selected.y + 1},
-        {m.selected.x, m.selected.y - 1},
-        {m.selected.x + 1, m.selected.y + 1},
-        {m.selected.x + 1, m.selected.y - 1},
-        {m.selected.x - 1, m.selected.y + 1},
-        {m.selected.x - 1, m.selected.y - 1},
+        {pos.x + 1, pos.y},
+        {pos.x - 1, pos.y},
+        {pos.x, pos.y + 1},
+        {pos.x, pos.y - 1},
+        {pos.x + 1, pos.y + 1},
+        {pos.x + 1, pos.y - 1},
+        {pos.x - 1, pos.y + 1},
+        {pos.x - 1, pos.y - 1},
     }
     for _, move := range checkMoves {
         if move.x >= rowsAndColums || move.x < 0 || move.y >= rowsAndColums || move.y < 0 {
@@ -762,7 +764,7 @@ func (m *model) calculatePossibleMovesKing(pos coordinate){
          }
         if m.checkIfEmpty(move){
             piece.possibleMoves = append(piece.possibleMoves, move)
-        } else if !m.checkIfSameColor(move, m.selected) {
+        } else if !m.checkIfSameColor(move, pos) {
             piece.possibleMoves = append(piece.possibleMoves, move)
             continue
         } else {
