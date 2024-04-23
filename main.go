@@ -134,22 +134,27 @@ func initialModel(mode string) (error, model) {
 
         case "testPawn":
             m.board = boardTestPawn
+            m.calculateMoves()
             return nil, m
 
         case "testBishop":
             m.board = boardTestBishop
+            m.calculateMoves()
             return nil, m
 
         case "testKnight":
             m.board = boardTestKnight
+            m.calculateMoves()
             return nil, m
         
         case "testQueen":
             m.board = boardTestQueen
+            m.calculateMoves()
         return nil, m
 
         case "testKing":
             m.board = boardTestKing
+            m.calculateMoves()
         return nil, m
 
         case "testEmpty":
@@ -406,6 +411,10 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
     } else if m.playerTurn == 2 {
         m.playerTurn = 1
     }
+
+    //recalculate possible moves
+
+    m.calculateMoves()
 }
 
 func (m *model) calculatePossibleMoves(c coordinate){
@@ -423,28 +432,20 @@ func (m *model) calculatePossibleMoves(c coordinate){
             m.calculatePossibleMovesRook(c)
 
         /* bishop movement */
-        /*
         case "♗", "♝":
             m.calculatePossibleMovesBishop(c)
-        */
 
         /* knight movement */
-        /*
         case "♞", "♘":
             m.calculatePossibleMovesKnight(c)
-        */
 
         /* queen movement */
-        /*
         case "♕", "♛":
             m.calculatePossibleMovesQueen(c)
-        */
 
         /* king movement */
-        /*
         case "♔", "♚":
             m.calculatePossibleMovesKing(c)
-            */
     }
 }
 
@@ -473,12 +474,12 @@ func (m *model) calculatePossibleMovesPawn(pos coordinate){
     }
 
     //check for diagonals
-    if pos.x != 0 && pos.y != 0 && pos.y != rowsAndColums &&
+    if pos.x != 0 && pos.y != 0 && pos.y != rowsAndColums - 1 &&
     m.board[pos.y + 1 * direction][pos.x - 1].unicode != empty.unicode && 
     !m.checkIfSameColor(coordinate{pos.x - 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
         piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x - 1, pos.y + 1 * direction})
     }
-    if pos.x != 7 && pos.y != 0 && pos.y != rowsAndColums &&
+    if pos.x != 7 && pos.y != 0 && pos.y != rowsAndColums - 1 &&
     m.board[pos.y + 1 * direction][pos.x + 1].unicode != empty.unicode &&
     !m.checkIfSameColor(coordinate{pos.x + 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
         piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x + 1, pos.y + 1 * direction})
@@ -552,7 +553,7 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
 
 func (m *model) calculatePossibleMovesBishop(pos coordinate){
 
-    piece := m.board[pos.y][pos.x]
+    piece := &m.board[pos.y][pos.x]
 
     piece.possibleMoves = []coordinate{}
             
@@ -603,19 +604,20 @@ func (m *model) calculatePossibleMovesBishop(pos coordinate){
 }
 
 func (m *model) calculatePossibleMovesKnight(pos coordinate){
-    piece := m.board[pos.y][pos.x]
+    piece := &m.board[pos.y][pos.x]
+    logToFile("calculating knights")
 
     piece.possibleMoves = []coordinate{}
 
     checkMoves := []coordinate{
-        {pos.x + 1, m.cursor.y + 2},
-        {pos.x + 1, m.cursor.y - 2},
-        {pos.x - 1, m.cursor.y + 2},
-        {pos.x - 1, m.cursor.y - 2},
-        {pos.x + 2, m.cursor.y + 1},
-        {pos.x + 2, m.cursor.y - 1},
-        {pos.x - 2, m.cursor.y + 1},
-        {pos.x - 2, m.cursor.y - 1},
+        {pos.x + 1, pos.y + 2},
+        {pos.x + 1, pos.y - 2},
+        {pos.x - 1, pos.y + 2},
+        {pos.x - 1, pos.y - 2},
+        {pos.x + 2, pos.y + 1},
+        {pos.x + 2, pos.y - 1},
+        {pos.x - 2, pos.y + 1},
+        {pos.x - 2, pos.y - 1},
     }
 
     for _, move := range checkMoves {
@@ -635,14 +637,14 @@ func (m *model) calculatePossibleMovesKnight(pos coordinate){
 
 func (m *model) calculatePossibleMovesQueen(pos coordinate){
 
-    piece := m.board[pos.y][pos.x]
+    piece := &m.board[pos.y][pos.x]
 
     piece.possibleMoves = []coordinate{}
     // queen logic is just copy paste rook and bishop
 
     // down
     for i := 1; pos.y + i < rowsAndColums; i ++ {
-        moveCoor := coordinate{pos.x, m.cursor.y + i}
+        moveCoor := coordinate{pos.x, pos.y + i}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
@@ -656,7 +658,7 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
 
     // up
     for i := 1; pos.y - i >= 0; i ++ {
-        moveCoor := coordinate{pos.x, m.cursor.y - i}
+        moveCoor := coordinate{pos.x, pos.y - i}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
@@ -670,7 +672,7 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
 
     //left
     for i := 1; pos.x + i < rowsAndColums; i++ {
-        moveCoor := coordinate{pos.x + i, m.cursor.y}
+        moveCoor := coordinate{pos.x + i, pos.y}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
@@ -685,7 +687,7 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     // left
     for i := 1; pos.x - i >= 0; i++ {
         
-        moveCoor := coordinate{pos.x - i, m.cursor.y}
+        moveCoor := coordinate{pos.x - i, pos.y}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
@@ -745,7 +747,7 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
 
 func (m *model) calculatePossibleMovesKing(pos coordinate){
 
-    piece := m.board[pos.y][pos.x]
+    piece := &m.board[pos.y][pos.x]
 
     piece.possibleMoves = []coordinate{}
     checkMoves := []coordinate{
