@@ -124,6 +124,7 @@ func initialModel(mode string) (error, model) {
         case "default":
             m.cursor = coordinate{4, 7}
             m.playerTurn = 1
+            m.calculateMoves()
             return nil, m
 
         case "testRook":
@@ -225,6 +226,7 @@ func (m model) View() string{
 
     if m.selected.x != -1 {
         selectedPiece = m.board[m.selected.y][m.selected.x]
+        logToFile("the selected piece has " + strconv.Itoa(len(selectedPiece.possibleMoves)) + "options")
     }
 
     for i := 0; i < rowsAndColums; i++ {
@@ -293,6 +295,14 @@ func (m model) View() string{
 
 func (m *model) calculateMoves(){
     //iterate over all pieces on the board and calculate the possible moves of each piece
+    logToFile("calculating all possible moves")
+
+    for i := 0; i < rowsAndColums; i++ {
+        for j := 0; j < rowsAndColums; j++ {
+            m.calculatePossibleMoves(coordinate{i, j})
+        }
+    }
+    logToFile("should have " + strconv.Itoa(len(m.board[6][0].possibleMoves)) + "options")
 }
 
 //creates an array of coordinates {-1, -1}, which will not be 
@@ -320,7 +330,6 @@ func (m model) checkIfSameColor(c1 coordinate, c2 coordinate) bool {
 func (m  *model) selectSquare(){
 
     logToFile("square selected")
-        logToFile("1")
 
     cursorpiece := m.board[m.cursor.y][m.cursor.x]
     var selectedPiece piece
@@ -363,8 +372,6 @@ func (m  *model) selectSquare(){
         }
 
         m.selected = coordinate{m.cursor.x, m.cursor.y}
-
-        m.calculateMoves()
     }
 }
 
@@ -408,31 +415,40 @@ func (m *model) calculatePossibleMoves(c coordinate){
             m.calculatePossibleMovesPawn(c)
 
         /* rook movement */
+        /*
         case "♖", "♜":
             m.calculatePossibleMovesRook(c)
+        */
 
         /* bishop movement */
+        /*
         case "♗", "♝":
             m.calculatePossibleMovesBishop(c)
+        */
 
         /* knight movement */
+        /*
         case "♞", "♘":
             m.calculatePossibleMovesKnight(c)
+        */
 
         /* queen movement */
+        /*
         case "♕", "♛":
             m.calculatePossibleMovesQueen(c)
+        */
 
         /* king movement */
+        /*
         case "♔", "♚":
             m.calculatePossibleMovesKing(c)
+            */
     }
 }
 
 func (m *model) calculatePossibleMovesPawn(pos coordinate){
+    piece := &m.board[pos.y][pos.x]
 
-    piece := m.board[pos.y][pos.x]
-    
     direction := 1
 
     if piece.pieceColor == pieceColorWhite {
@@ -443,27 +459,27 @@ func (m *model) calculatePossibleMovesPawn(pos coordinate){
     }
 
     //check forward
-    if m.board[m.selected.y + 1 * direction][m.selected.x].unicode == empty.unicode {
-        piece.possibleMoves = append(piece.possibleMoves, coordinate{m.selected.x, m.selected.y + 1 * direction})
+    if m.board[pos.y + 1 * direction][pos.x].unicode == empty.unicode {
+        piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x, pos.y + 1 * direction})
     }
 
     //check if in initial position
-    if (piece.pieceColor == "black" && m.selected.y == 1 ||
-    piece.pieceColor == "white" && m.selected.y == 6 ) && 
-    m.board[m.selected.y + 2 * direction][m.selected.x].unicode == empty.unicode {
-        piece.possibleMoves = append(piece.possibleMoves, coordinate{m.selected.x, m.selected.y + 2 * direction})
+    if (piece.pieceColor == "black" && pos.y == 1 ||
+    piece.pieceColor == "white" && pos.y == 6 ) && 
+    m.board[pos.y + 2 * direction][pos.x].unicode == empty.unicode {
+        piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x, pos.y + 2 * direction})
     }
 
     //check for diagonals
-    if m.selected.x != 0 && 
-    m.board[m.selected.y + 1 * direction][m.selected.x - 1].unicode != empty.unicode && 
-    !m.checkIfSameColor(coordinate{m.selected.x - 1, m.selected.y + 1 * direction}, coordinate{m.selected.x, m.cursor.y}) {
-        piece.possibleMoves = append(piece.possibleMoves, coordinate{m.selected.x - 1, m.selected.y + 1 * direction})
+    if pos.x != 0 && 
+    m.board[pos.y + 1 * direction][pos.x - 1].unicode != empty.unicode && 
+    !m.checkIfSameColor(coordinate{pos.x - 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
+        piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x - 1, pos.y + 1 * direction})
     }
-    if m.selected.x != 7 && 
-    m.board[m.selected.y + 1 * direction][m.selected.x + 1].unicode != empty.unicode &&
-    !m.checkIfSameColor(coordinate{m.selected.x + 1, m.selected.y + 1 * direction}, coordinate{m.selected.x, m.cursor.y}) {
-        piece.possibleMoves = append(piece.possibleMoves, coordinate{m.selected.x + 1, m.selected.y + 1 * direction})
+    if pos.x != 7 && 
+    m.board[pos.y + 1 * direction][pos.x + 1].unicode != empty.unicode &&
+    !m.checkIfSameColor(coordinate{pos.x + 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
+        piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x + 1, pos.y + 1 * direction})
     }
 }
 
