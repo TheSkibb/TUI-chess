@@ -126,6 +126,10 @@ func initialModel(mode string) (error, model) {
             m.playerTurn = 1
             m.calculateMoves()
             return nil, m
+        case "freeplay":
+            m.cursor = coordinate{4, 7}
+            m.calculateMoves()
+            return nil, m
 
         case "testRook":
             m.board = boardTestRook
