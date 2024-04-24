@@ -564,7 +564,14 @@ func (m *model) calculatePossibleMovesBishop(pos coordinate){
             // right down
             for i := 1; pos.y + i < rowsAndColums && pos.x + i < rowsAndColums; i++ {
                 moveCoor := coordinate{pos.x + i, pos.y + i}
-                piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+                if m.checkIfEmpty(moveCoor){
+                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+                } else if !m.checkIfSameColor(moveCoor, pos) {
+                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+                    break
+                } else {
+                    break
+                }
             }
 
             // right up
