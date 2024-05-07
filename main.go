@@ -309,7 +309,6 @@ func (m *model) calculateMoves(){
 
     for i := 0; i < rowsAndColums; i++ {
         for j := 0; j < rowsAndColums; j++ {
-            logToFile("here")
             m.calculatePossibleMoves(coordinate{i, j})
         }
     }
@@ -334,8 +333,30 @@ func (m model) checkIfEmpty(c coordinate) bool {
     return false
 }
 
+func (m model) checkIfChecking(c coordinate) bool {
+    logToFile("king is checked")
+    piece := m.board[c.y][c.x]
+    if piece.unicode == kingBlack.unicode || piece.unicode == kingWhite.unicode {
+        return true
+    }
+
+    return false
+}
+
 func (m model) checkIfSameColor(c1 coordinate, c2 coordinate) bool {
     return m.board[c1.y][c1.x].pieceColor == m.board[c2.y][c2.x].pieceColor
+}
+
+// checks if the move is a valid move and whether or not the move puts the king in check
+// a move that puts the king in check will be invalid
+func (m model) checkValidMove(piecePos, movePos coordinate) (valid bool, checking bool) {
+
+    valid = false
+
+
+    checking = m.checkIfChecking(movePos)
+
+    return false, false
 }
 
 func (m  *model) selectSquare(){
@@ -421,39 +442,42 @@ func (m *model) movePiece(pos coordinate, piecePos coordinate){
     m.calculateMoves()
 }
 
-func (m *model) calculatePossibleMoves(c coordinate){
+func (m *model) calculatePossibleMoves(c coordinate) (checking bool){
     piece := m.board[c.y][c.x]
+    m.player1.checked = false
+    m.player2.checked = false
 
     switch piece.unicode{
         /* pawn movement */
         case "♙", "♟︎":
             logToFile("calculating pawn moves")
-            m.calculatePossibleMovesPawn(c)
+            return m.calculatePossibleMovesPawn(c)
 
         /* rook movement */
         case "♖", "♜":
             logToFile("calculating rook moves")
-            m.calculatePossibleMovesRook(c)
+            return m.calculatePossibleMovesRook(c)
 
         /* bishop movement */
         case "♗", "♝":
-            m.calculatePossibleMovesBishop(c)
+            return m.calculatePossibleMovesBishop(c)
 
         /* knight movement */
         case "♞", "♘":
-            m.calculatePossibleMovesKnight(c)
+            return m.calculatePossibleMovesKnight(c)
 
         /* queen movement */
         case "♕", "♛":
-            m.calculatePossibleMovesQueen(c)
+            return m.calculatePossibleMovesQueen(c)
 
         /* king movement */
         case "♔", "♚":
-            m.calculatePossibleMovesKing(c)
+            return m.calculatePossibleMovesKing(c)
     }
+    return false
 }
 
-func (m *model) calculatePossibleMovesPawn(pos coordinate){
+func (m *model) calculatePossibleMovesPawn(pos coordinate) (checking bool) {
     piece := &m.board[pos.y][pos.x]
 
     direction := 1
@@ -481,16 +505,23 @@ func (m *model) calculatePossibleMovesPawn(pos coordinate){
     if pos.x != 0 && pos.y != 0 && pos.y != rowsAndColums - 1 &&
     m.board[pos.y + 1 * direction][pos.x - 1].unicode != empty.unicode && 
     !m.checkIfSameColor(coordinate{pos.x - 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
+        if m.checkIfChecking(coordinate{pos.x - 1, pos.y + 1 * direction}) {
+            checking = true
+        }
         piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x - 1, pos.y + 1 * direction})
     }
     if pos.x != 7 && pos.y != 0 && pos.y != rowsAndColums - 1 &&
     m.board[pos.y + 1 * direction][pos.x + 1].unicode != empty.unicode &&
     !m.checkIfSameColor(coordinate{pos.x + 1, pos.y + 1 * direction}, coordinate{pos.x, m.cursor.y}) {
+        if m.checkIfChecking(coordinate{pos.x - 1, pos.y + 1 * direction}) {
+            checking = true
+        }
         piece.possibleMoves = append(piece.possibleMoves, coordinate{pos.x + 1, pos.y + 1 * direction})
     }
+    return checking
 }
 
-func (m *model) calculatePossibleMovesRook(pos coordinate){
+func (m *model) calculatePossibleMovesRook(pos coordinate) (checking bool) {
 
     piece := &m.board[pos.y][pos.x]
 
@@ -502,8 +533,12 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
         moveCoor := coordinate{pos.x, pos.y + i}
 
         if m.checkIfEmpty(moveCoor){
+            // if empty no need to check if checking
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -518,6 +553,9 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -525,13 +563,16 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
         }
     }
 
-    //left
+    // right
     for i := 1; pos.x + i < rowsAndColums; i++ {
         moveCoor := coordinate{pos.x + i, pos.y}
 
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -547,74 +588,92 @@ func (m *model) calculatePossibleMovesRook(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
             break
         }
     }
+
+    return checking
 }
 
-func (m *model) calculatePossibleMovesBishop(pos coordinate){
+func (m *model) calculatePossibleMovesBishop(pos coordinate) (checking bool) {
 
     piece := &m.board[pos.y][pos.x]
 
     piece.possibleMoves = []coordinate{}
             
-            // right down
-            for i := 1; pos.y + i < rowsAndColums && pos.x + i < rowsAndColums; i++ {
-                moveCoor := coordinate{pos.x + i, pos.y + i}
-                if m.checkIfEmpty(moveCoor){
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                } else if !m.checkIfSameColor(moveCoor, pos) {
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                    break
-                } else {
-                    break
-                }
+    // right down
+    for i := 1; pos.y + i < rowsAndColums && pos.x + i < rowsAndColums; i++ {
+        moveCoor := coordinate{pos.x + i, pos.y + i}
+        if m.checkIfEmpty(moveCoor){
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+        } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
             }
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+            break
+        } else {
+            break
+        }
+    }
 
-            // right up
-            for i := 1; pos.y - i >= 0 && pos.x + i < rowsAndColums; i++ {
-                moveCoor := coordinate{pos.x + i, pos.y - i}
-                if m.checkIfEmpty(moveCoor){
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                } else if !m.checkIfSameColor(moveCoor, pos) {
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                    break
-                } else {
-                    break
-                }
+    // right up
+    for i := 1; pos.y - i >= 0 && pos.x + i < rowsAndColums; i++ {
+        moveCoor := coordinate{pos.x + i, pos.y - i}
+        if m.checkIfEmpty(moveCoor){
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+        } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
             }
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+            break
+        } else {
+            break
+        }
+    }
 
-            // left down
-            for i := 1; pos.y + i < rowsAndColums && pos.x - i >= 0; i++ {
-                moveCoor := coordinate{pos.x - i, pos.y + i}
-                if m.checkIfEmpty(moveCoor){
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                } else if !m.checkIfSameColor(moveCoor, pos) {
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                    break
-                } else {
-                    break
-                }
+    // left down
+    for i := 1; pos.y + i < rowsAndColums && pos.x - i >= 0; i++ {
+        moveCoor := coordinate{pos.x - i, pos.y + i}
+        if m.checkIfEmpty(moveCoor){
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+        } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
             }
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+            break
+        } else {
+            break
+        }
+    }
 
-            // left up
-            for i := 1; pos.y - i >= 0 && pos.x - i >= 0; i++ {
-                moveCoor := coordinate{pos.x - i, pos.y - i}
-                if m.checkIfEmpty(moveCoor){
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                } else if !m.checkIfSameColor(moveCoor, pos) {
-                    piece.possibleMoves = append(piece.possibleMoves, moveCoor)
-                    break
-                } else {
-                    break
-                }
+    // left up
+    for i := 1; pos.y - i >= 0 && pos.x - i >= 0; i++ {
+        moveCoor := coordinate{pos.x - i, pos.y - i}
+        if m.checkIfEmpty(moveCoor){
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+        } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
             }
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+            break
+        } else {
+            break
+        }
+    }
+    return checking
 }
 
-func (m *model) calculatePossibleMovesKnight(pos coordinate){
+func (m *model) calculatePossibleMovesKnight(pos coordinate) (checking bool) {
     piece := &m.board[pos.y][pos.x]
     logToFile("calculating knights")
 
@@ -638,15 +697,19 @@ func (m *model) calculatePossibleMovesKnight(pos coordinate){
         if m.checkIfEmpty(move){
             piece.possibleMoves = append(piece.possibleMoves, move)
         } else if !m.checkIfSameColor(move, pos) {
+            if m.checkIfChecking(move) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, move)
             continue
         } else {
             continue
         }
     }
+    return checking
 }
 
-func (m *model) calculatePossibleMovesQueen(pos coordinate){
+func (m *model) calculatePossibleMovesQueen(pos coordinate) (checking bool) {
 
     piece := &m.board[pos.y][pos.x]
 
@@ -660,6 +723,9 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -674,6 +740,9 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -688,6 +757,9 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -703,6 +775,9 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -713,7 +788,17 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
     // right down
     for i := 1; pos.y + i < rowsAndColums && pos.x + i < rowsAndColums; i++ {
         moveCoor := coordinate{pos.x + i, pos.y + i}
-        piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+        if m.checkIfEmpty(moveCoor){
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+        } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
+            piece.possibleMoves = append(piece.possibleMoves, moveCoor)
+            break
+        } else {
+            break
+        }
     }
 
     // right up
@@ -722,6 +807,9 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -735,6 +823,9 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
@@ -748,19 +839,23 @@ func (m *model) calculatePossibleMovesQueen(pos coordinate){
         if m.checkIfEmpty(moveCoor){
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
         } else if !m.checkIfSameColor(moveCoor, pos) {
+            if m.checkIfChecking(moveCoor) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, moveCoor)
             break
         } else {
             break
         }
     }
+
+    return checking
 }
 
-func (m *model) calculatePossibleMovesKing(pos coordinate){
+func (m *model) calculatePossibleMovesKing(pos coordinate) (checking bool) {
 
     piece := &m.board[pos.y][pos.x]
-
-    piece.possibleMoves = []coordinate{}
+    piece.possibleMoves = []coordinate{} 
     checkMoves := []coordinate{
         {pos.x + 1, pos.y},
         {pos.x - 1, pos.y},
@@ -778,12 +873,16 @@ func (m *model) calculatePossibleMovesKing(pos coordinate){
         if m.checkIfEmpty(move){
             piece.possibleMoves = append(piece.possibleMoves, move)
         } else if !m.checkIfSameColor(move, pos) {
+            if m.checkIfChecking(move) {
+                checking = true
+            }
             piece.possibleMoves = append(piece.possibleMoves, move)
             continue
         } else {
             continue
         }
     }
+    return checking
 }
 
 // adds the move to the list of moves formatted as a chess move
